@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client WebSocket STOMP - Topics</title>
+    <link rel="stylesheet" href="styles.css">
+    
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Client WebSocket STOMP</h1>
+            <p>Connexion en temps réel avec souscription aux topics</p>
+            <div class="library-info">
+                📚 Utilise STOMP.js pour une gestion robuste des WebSockets
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Section Connexion -->
+            <div class="section">
+                <h2>
+                    <div class="status-indicator" id="connectionStatus"></div>
+                    Connexion WebSocket STOMP
+                </h2>
+                <div class="input-row">
+                    <input type="text" id="wsUrl" placeholder="URL WebSocket" value="ws://localhost:8080/ws">
+                    <input type="text" id="username" placeholder="Nom d'utilisateur (optionnel)">
+                    <input type="text" id="password" placeholder="Mot de passe (optionnel)">
+                </div>
+                <div class="input-group">
+                    <button class="btn btn-primary" id="connectBtn">Connecter</button>
+                    <button class="btn btn-danger" id="disconnectBtn" disabled>Déconnecter</button>
+                </div>
+                <div id="connectionMessage"></div>
+            </div>
+
+            <!-- Section Souscription -->
+            <div class="section">
+                <h2>📡 Souscription aux Topics</h2>
+                <div class="input-group">
+                    <input type="text" id="topicPath" placeholder="/topic/notifications" disabled>
+                    <button class="btn btn-success" id="subscribeBtn" disabled>S'abonner</button>
+                </div>
+                <div class="topics-list" id="topicsList"></div>
+            </div>
+
+            <!-- Section Envoi de messages -->
+            <div class="section send-section">
+                <h2>📤 Envoyer un Message</h2>
+                <div class="input-row">
+                    <input type="text" id="sendDestination" placeholder="Destination (/app/hello)" disabled>
+                    <input type="text" id="sendMessage" placeholder="Message à envoyer" disabled>
+                </div>
+                <div class="input-group">
+                    <button class="btn btn-primary" id="sendBtn" disabled>Envoyer</button>
+                </div>
+            </div>
+
+            <!-- Section Messages -->
+            <div class="section">
+                <h2>💬 Messages Reçus</h2>
+                <div class="input-group">
+                    <button class="btn btn-danger" id="clearBtn">Effacer la console</button>
+                </div>
+                <div class="messages-console" id="messagesConsole">
+                    <div style="color: #666; font-style: italic;">
+                        🔌 En attente de connexion STOMP...
+                        <br>ℹ️ STOMP.js permet une gestion avancée des WebSockets avec:
+                        <br>• Reconnexion automatique
+                        <br>• Gestion des heartbeats
+                        <br>• Support des en-têtes personnalisés
+                        <br>• Transactions et accusés de réception
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SockJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <!-- STOMP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="script.js"></script>
+    
+</body>
+</html>
