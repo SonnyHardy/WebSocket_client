@@ -1,0 +1,130 @@
+/* Styles pour la fonctionnalité d'historique des messages */
+
+/* Filtres et recherche */
+#searchMessages {
+    flex: 1;
+    min-width: 200px;
+}
+
+#topicFilter {
+    min-width: 180px;
+}
+
+.filter-container {
+    background: #f2f2f2;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.history-toggle {
+    margin-left: auto;
+    background: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+.history-toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+#exportBtn {
+    padding: 8px 15px;
+    font-size: 0.9em;
+    background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+}
+
+/* Messages avec marqueurs historiques */
+.message-item.history {
+    border-left: 3px solid #a777e3;
+}
+
+.history-badge {
+    background-color: #a777e3;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+
+/* Export modal */
+.export-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.export-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.export-content {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+}
+
+.export-modal.active .export-content {
+    transform: translateY(0);
+}
+
+.export-content h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.export-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+}
+
+.export-content pre {
+    background: #f6f8fa;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.5;
+    border: 1px solid #e1e4e8;
+}
+
+.export-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}

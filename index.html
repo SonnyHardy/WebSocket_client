@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client WebSocket STOMP - Topics</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/history.css">
+    <link rel="stylesheet" href="css/scheduler.css">
+    <link rel="stylesheet" href="css/multi-client.css">
     
 </head>
 <body>
@@ -25,7 +29,7 @@
                     Connexion WebSocket STOMP
                 </h2>
                 <div class="input-row">
-                    <input type="text" id="wsUrl" placeholder="URL WebSocket" value="localhost:8080/ws">
+                    <input type="text" id="wsUrl" placeholder="URL WebSocket" value="http://localhost:8080/ws">
                     <input type="text" id="username" placeholder="Nom d'utilisateur (optionnel)">
                     <input type="text" id="password" placeholder="Mot de passe (optionnel)">
                 </div>
@@ -63,6 +67,17 @@
                 <h2>💬 Messages Reçus</h2>
                 <div class="input-group">
                     <button class="btn btn-danger" id="clearBtn">Effacer la console</button>
+                    <input type="text" id="searchMessages" placeholder="Rechercher dans les messages...">
+                </div>
+                <div class="filter-container">
+                    <select id="topicFilter">
+                        <option value="">Tous les topics</option>
+                    </select>
+                    <label class="history-toggle">
+                        <input type="checkbox" id="enableHistory">
+                        Conserver l'historique
+                    </label>
+                    <button class="btn btn-primary" id="exportBtn">Exporter JSON</button>
                 </div>
                 <div class="messages-console" id="messagesConsole">
                     <div style="color: #666; font-style: italic;">
@@ -75,6 +90,73 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Section Authentification Avancée -->
+            <div class="section auth-section">
+                <h2>🔒 Authentification Avancée</h2>
+                <div class="input-row">
+                    <input type="text" id="authToken" placeholder="Token JWT / OAuth2">
+                    <select id="tokenType">
+                        <option value="Bearer">Bearer</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Digest">Digest</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <button class="btn btn-primary" id="applyTokenBtn">Appliquer Token</button>
+                    <button class="btn btn-danger" id="clearTokenBtn">Effacer Token</button>
+                </div>
+                <div class="reconnect-options">
+                    <h3>Reconnexion Automatique</h3>
+                    <div class="input-row">
+                        <label>
+                            <input type="checkbox" id="enableReconnect" checked>
+                            Activer la reconnexion auto
+                        </label>
+                        <input type="number" id="maxRetries" placeholder="Nb essais max" value="10" min="1" max="100">
+                        <input type="number" id="initialDelay" placeholder="Délai initial (ms)" value="1000" min="100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Simulateur -->
+            <div class="section simulator-section">
+                <h2>📊 Simulateur d'envoi programmé</h2>
+                <div class="input-row">
+                    <input type="text" id="schedulerDestination" placeholder="Destination (/app/hello)">
+                    <textarea id="schedulerMessage" placeholder="Message à envoyer (JSON accepté)"></textarea>
+                </div>
+                <div class="input-row">
+                    <input type="number" id="intervalSeconds" placeholder="Intervalle (sec)" value="5" min="1">
+                    <input type="number" id="iterations" placeholder="Nb d'itérations (0 = infini)" value="0" min="0">
+                    <label class="variable-data">
+                        <input type="checkbox" id="variableData" checked>
+                        Données variables
+                    </label>
+                </div>
+                <div class="input-group">
+                    <button class="btn btn-primary" id="startSchedulerBtn">Démarrer Envoi</button>
+                    <button class="btn btn-danger" id="stopSchedulerBtn" disabled>Arrêter Envoi</button>
+                </div>
+                <div class="active-tasks" id="activeTasks">
+                    <!-- Les tâches actives seront ajoutées ici -->
+                </div>
+            </div>
+
+            <!-- Section Multi-clients -->
+            <div class="section multi-client-section">
+                <h2>🔄 Mode Multi-clients</h2>
+                <div class="input-row">
+                    <input type="text" id="clientName" placeholder="Nom du client">
+                    <button class="btn btn-success" id="createClientBtn">Créer Client</button>
+                </div>
+                <div class="clients-list" id="clientsList">
+                    <!-- Les clients seront ajoutés ici -->
+                </div>
+                <div class="active-client-info" id="activeClientInfo">
+                    <p>Aucun client actif</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -82,7 +164,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <!-- STOMP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <script src="script.js"></script>
+
+    <!-- Modules du client STOMP -->
+    <script type="module" src="js/main.js"></script>
     
 </body>
 </html>

@@ -1,0 +1,72 @@
+/* Styles pour la section d'authentification */
+.auth-section {
+    background: #f9f9ff;
+    border-left-color: #7952b3;
+}
+
+.auth-section h2 {
+    color: #7952b3;
+}
+
+.auth-section .input-row {
+    align-items: center;
+}
+
+#tokenType {
+    max-width: 150px;
+}
+
+.reconnect-options {
+    background: rgba(121, 82, 179, 0.05);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+.reconnect-options h3 {
+    margin-top: 0;
+    color: #7952b3;
+    font-size: 1rem;
+}
+
+.reconnect-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.reconnect-options input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+
+.reconnect-options input[type="number"] {
+    max-width: 150px;
+}
+
+.auth-badge {
+    display: inline-block;
+    background: #7952b3;
+    color: white;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    margin-left: 10px;
+}
+
+.reconnection-status {
+    margin-top: 10px;
+    font-size: 0.9em;
+    padding: 8px;
+    border-radius: 5px;
+    background: #f1f1f1;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}

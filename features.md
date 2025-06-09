@@ -22,29 +22,25 @@ ou utiles** que tu pourrais ajouter :
 
 3. **Historique des messages**
 
+    * Mise à jour de l'historique des messages en temps reel.
     * Possiblité de conservation des messages envoyés et reçus
       même après rafraîchissement de la page (avec `localstorage`).
-    * Filtrage par topic, recherche, export (CSV/JSON).
-
-4. **Mode "Test rapide"**
-
-    * Pré-configurer des connexions/messages pour tests fréquents.
+    * Possibilité d'exporter l’historique des messages sous format JSON.
+    * Filtrage par topic, recherche.
 
 ---
 
 ### 🔧 Configuration avancée
 
-5. **Envoi programmé de messages (simulateur)**
+4. **Envoi programmé de messages (simulateur)**
 
     * Pouvoir envoyer des messages à intervalle régulier pour tester un flux (simulateur de capteurs par ex.).
 
 ---
 
 ### 🔄 Synchronisation & Multi-clients
-6. **Mode multi-onglets / multi-clients**
+5. **Mode multi-onglets / multi-clients**
 
     * Tester plusieurs connexions WebSocket simultanément (ex: 2 utilisateurs d’un chat).
-
-7. **Export/import de configuration**
-
-    * Sauvegarder les paramètres de connexion/topics/messages en JSON et pouvoir les réutiliser.
+    * Chaque client peut avoir ses propres topics et messages.
+   

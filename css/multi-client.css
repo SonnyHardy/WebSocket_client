@@ -1,0 +1,134 @@
+/* Styles pour le mode multi-clients */
+.multi-client-section {
+    background: #fff8f0;
+    border-left-color: #fd7e14;
+}
+
+.multi-client-section h2 {
+    color: #fd7e14;
+}
+
+.clients-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.client-card {
+    flex: 1;
+    min-width: 200px;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.client-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.client-card.active {
+    border: 2px solid #fd7e14;
+    background: rgba(253, 126, 20, 0.05);
+}
+
+.client-card h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.client-status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+
+.client-status.connected {
+    background: #d4edda;
+    color: #155724;
+}
+
+.client-status.disconnected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.client-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.client-remove {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.client-remove:hover {
+    color: #dc3545;
+}
+
+.active-client-info {
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 15px;
+    border-left: 3px solid #fd7e14;
+}
+
+.active-client-info h3 {
+    margin: 0 0 8px 0;
+    color: #fd7e14;
+}
+
+.client-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.9rem;
+}
+
+.client-details div {
+    flex: 1;
+    min-width: 200px;
+}
+
+.client-details h4 {
+    margin: 0 0 5px 0;
+    font-size: 0.95rem;
+    color: #666;
+}
+
+.client-detail-value {
+    background: #f8f9fa;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+}
+
+/* Indicateur de client actif dans le titre */
+.client-indicator {
+    display: inline-block;
+    background: #fd7e14;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    margin-left: 10px;
+    vertical-align: middle;
+}
