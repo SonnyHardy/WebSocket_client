@@ -32,7 +32,6 @@ Client web pour interagir avec des serveurs WebSocket utilisant le protocole STO
   - Support des données variables
   - Configuration du nombre d'itérations
 
-
 ## Technologies utilisées
 
 - HTML5 / CSS3 / JavaScript (ES6+)
@@ -79,4 +78,3 @@ Chaque fonctionnalité est implémentée dans son propre module avec des respons
 - `reconnect.js` : Logique de reconnexion automatique
 - `storage.js` : Persistance et gestion de l'historique
 - `scheduler.js` : Fonctionnalités d'envoi programmé
-- `multi-client.js` : Gestion de plusieurs clients
