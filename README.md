@@ -32,10 +32,6 @@ Client web pour interagir avec des serveurs WebSocket utilisant le protocole STO
   - Support des données variables
   - Configuration du nombre d'itérations
 
-- 🖥️ **Mode multi-clients**
-  - Gestion de plusieurs clients simultanément
-  - Connexions indépendantes pour chaque client
-  - Souscriptions et messages séparés
 
 ## Technologies utilisées
 
@@ -53,16 +49,14 @@ Client web pour interagir avec des serveurs WebSocket utilisant le protocole STO
 │   ├── styles.css        # Styles principaux
 │   ├── auth.css          # Styles pour l'authentification
 │   ├── history.css       # Styles pour l'historique
-│   ├── scheduler.css     # Styles pour le simulateur
-│   └── multi-client.css  # Styles pour le mode multi-clients
+│   └── scheduler.css     # Styles pour le simulateur
 ├── js/
 │   ├── main.js           # Point d'entrée principal
 │   ├── stomp-client.js   # Client STOMP principal
 │   ├── auth.js           # Gestion de l'authentification
 │   ├── reconnect.js      # Gestion de la reconnexion
 │   ├── storage.js        # Stockage des messages
-│   ├── scheduler.js      # Envoi programmé
-│   └── multi-client.js   # Gestion multi-clients
+│   └── scheduler.js      # Envoi programmé
 └── README.md            # Documentation
 ```
 

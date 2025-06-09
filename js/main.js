@@ -7,15 +7,10 @@ import { authManager } from './auth.js';
 import { reconnectManager } from './reconnect.js';
 import { messageStorage } from './storage.js';
 import { messageScheduler } from './scheduler.js';
-import { multiClientManager } from './multi-client.js';
 import { STOMPWebSocketClient } from './stomp-client.js';
 
-// Initialiser l'application avec un premier client
-const defaultClientId = multiClientManager.createClient('Client principal');
-multiClientManager.activateClient(defaultClientId);
-
-const stompClient = new STOMPWebSocketClient(defaultClientId);
-multiClientManager.setClientInstance(defaultClientId, stompClient);
+// Initialiser l'application avec un client unique
+const stompClient = new STOMPWebSocketClient();
 
 // Configuration des modules
 reconnectManager.configure({
@@ -26,9 +21,8 @@ reconnectManager.configure({
 
 // Événements de reconnexion
 reconnectManager.setReconnectCallback(() => {
-    const activeClient = multiClientManager.getActiveClient();
-    if (activeClient) {
-        activeClient.reconnect();
+    if (stompClient) {
+        stompClient.reconnect();
     }
 });
 
@@ -68,13 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
         activeTasks: document.getElementById('activeTasks')
     };
 
-    // Interface pour le mode multi-clients
-    const multiClientElements = {
-        clientName: document.getElementById('clientName'),
-        createClientBtn: document.getElementById('createClientBtn'),
-        clientsList: document.getElementById('clientsList'),
-        activeClientInfo: document.getElementById('activeClientInfo')
-    };
 
     // Initialisation de l'interface d'authentification
     if (authManager.hasAuthToken()) {
@@ -104,9 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
     authElements.enableReconnect.addEventListener('change', function() {
         if (this.checked) {
             reconnectManager.setReconnectCallback(() => {
-                const activeClient = multiClientManager.getActiveClient();
-                if (activeClient) {
-                    activeClient.reconnect();
+                if (stompClient) {
+                    stompClient.reconnect();
                 }
             });
             authElements.maxRetries.disabled = false;
@@ -140,17 +126,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     historyElements.searchMessages.addEventListener('input', function() {
         const query = this.value.trim();
-        const activeClient = multiClientManager.getActiveClient();
-        if (activeClient) {
-            activeClient.filterMessages(query);
+        if (stompClient) {
+            stompClient.filterMessages(query);
         }
     });
 
     historyElements.topicFilter.addEventListener('change', function() {
         const topic = this.value;
-        const activeClient = multiClientManager.getActiveClient();
-        if (activeClient) {
-            activeClient.filterByTopic(topic);
+        if (stompClient) {
+            stompClient.filterByTopic(topic);
         }
     });
 
@@ -257,100 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initialisation de l'interface multi-clients
-    multiClientElements.createClientBtn.addEventListener('click', () => {
-        const clientName = multiClientElements.clientName.value.trim() || `Client ${multiClientManager.getAllClients().length + 1}`;
-        const clientId = multiClientManager.createClient(clientName);
-        const newClient = new STOMPWebSocketClient(clientId);
-        multiClientManager.setClientInstance(clientId, newClient);
-        updateClientsListUI();
-        multiClientElements.clientName.value = '';
-    });
-
-    function updateClientsListUI() {
-        const clients = multiClientManager.getAllClients();
-        multiClientElements.clientsList.innerHTML = '';
-
-        clients.forEach(client => {
-            const clientElement = document.createElement('div');
-            clientElement.className = `client-card ${client.isActive ? 'active' : ''}`;
-            clientElement.setAttribute('data-client-id', client.id);
-
-            const clientInstance = multiClientManager.clients.get(client.id).instance;
-            const connectionStatus = clientInstance && clientInstance.isConnected ? 'connected' : 'disconnected';
-
-            clientElement.innerHTML = `
-                <h3>${client.name}</h3>
-                <span class="client-status ${connectionStatus}">
-                    ${connectionStatus === 'connected' ? 'Connecté' : 'Déconnecté'}
-                </span>
-                <button class="client-remove" data-client-id="${client.id}">×</button>
-            `;
-            multiClientElements.clientsList.appendChild(clientElement);
-
-            // Événement pour activer un client
-            clientElement.addEventListener('click', () => {
-                multiClientManager.activateClient(client.id);
-                updateClientsListUI();
-                updateActiveClientInfoUI();
-            });
-
-            // Événement pour supprimer un client
-            clientElement.querySelector('.client-remove').addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (clients.length > 1) {
-                    multiClientManager.removeClient(client.id);
-                    // Si c'était le client actif, activer le premier client disponible
-                    if (client.isActive && multiClientManager.getAllClients().length > 0) {
-                        multiClientManager.activateClient(multiClientManager.getAllClients()[0].id);
-                    }
-                    updateClientsListUI();
-                    updateActiveClientInfoUI();
-                } else {
-                    showMessage('Il doit y avoir au moins un client', 'error');
-                }
-            });
-        });
-    }
-
-    function updateActiveClientInfoUI() {
-        const activeClient = multiClientManager.getActiveClient();
-        if (!activeClient) {
-            multiClientElements.activeClientInfo.innerHTML = '<p>Aucun client actif</p>';
-            return;
-        }
-
-        const clientData = multiClientManager.clients.get(activeClient.clientId);
-        const subscriptions = Array.from(activeClient.subscribedTopics.keys());
-
-        multiClientElements.activeClientInfo.innerHTML = `
-            <h3>Client actif: ${clientData.name}</h3>
-            <div class="client-details">
-                <div>
-                    <h4>Statut</h4>
-                    <div class="client-detail-value">
-                        ${activeClient.isConnected ? '✅ Connecté' : '❌ Déconnecté'}
-                    </div>
-                </div>
-                <div>
-                    <h4>URL</h4>
-                    <div class="client-detail-value">
-                        ${activeClient.elements.wsUrl.value || 'Non définie'}
-                    </div>
-                </div>
-                <div>
-                    <h4>Topics (${subscriptions.length})</h4>
-                    <div class="client-detail-value">
-                        ${subscriptions.length > 0 ? subscriptions.join(', ') : 'Aucun topic'}
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Mettre à jour le sélecteur de topics avec les topics du client actif
-        updateTopicFilter(subscriptions);
-    }
-
     function updateTopicFilter(topics) {
         const topicFilter = historyElements.topicFilter;
         const currentValue = topicFilter.value;
@@ -358,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Sauvegarder la sélection actuelle
         topicFilter.innerHTML = '<option value="">Tous les topics</option>';
 
-        // Ajouter les topics du client actif
+        // Ajouter les topics du client
         topics.forEach(topic => {
             const option = document.createElement('option');
             option.value = topic;
@@ -373,8 +263,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initialiser l'interface
-    updateClientsListUI();
-    updateActiveClientInfoUI();
+    if (stompClient.subscribedTopics) {
+        updateTopicFilter(Array.from(stompClient.subscribedTopics.keys()));
+    }
 });
 
 // Fonction utilitaire pour afficher des messages temporaires

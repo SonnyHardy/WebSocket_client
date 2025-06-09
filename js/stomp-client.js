@@ -7,8 +7,7 @@ import { reconnectManager } from './reconnect.js';
 import { messageStorage } from './storage.js';
 
 export class STOMPWebSocketClient {
-    constructor(clientId) {
-        this.clientId = clientId;
+    constructor() {
         this.stompClient = null;
         this.subscribedTopics = new Map(); // Map pour stocker les subscriptions
         this.isConnected = false;
@@ -192,8 +191,7 @@ export class STOMPWebSocketClient {
                     content: message,
                     topic: 'SENT:' + destination,
                     timestamp,
-                    headers: {},
-                    clientId: this.clientId
+                    headers: {}
                 };
 
                 this.addMessage(message, 'SENT:' + destination, {}, false, null);
@@ -233,8 +231,6 @@ export class STOMPWebSocketClient {
         // Arrêter le gestionnaire de reconnexion si actif
         reconnectManager.reset();
 
-        // Mettre à jour l'interface client si applicable
-        this.updateClientUI();
     }
 
     onError(error) {
@@ -289,8 +285,7 @@ export class STOMPWebSocketClient {
                     timestamp,
                     headers: message.headers,
                     isJson,
-                    jsonObject: isJson ? jsonObject : null,
-                    clientId: this.clientId
+                    jsonObject: isJson ? jsonObject : null
                 });
             }
 
