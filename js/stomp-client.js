@@ -7,7 +7,11 @@ import { reconnectManager } from './reconnect.js';
 import { messageStorage } from './storage.js';
 
 export class STOMPWebSocketClient {
-    constructor() {
+
+    constructor(clientId = null) {
+        this.clientId = clientId || Math.floor(Math.random() * 1000000);
+        this.name = `Client ${this.clientId}`;
+        this.url = '';
         this.stompClient = null;
         this.subscribedTopics = new Map(); // Map pour stocker les subscriptions
         this.isConnected = false;
@@ -23,6 +27,22 @@ export class STOMPWebSocketClient {
         if (messageStorage.isStorageEnabled()) {
             this.loadHistoricalMessages();
         }
+    }
+
+    /**
+     * Définit le nom du client
+     * @param {string} name - Nom du client
+     */
+    setName(name) {
+        this.name = name;
+    }
+
+    /**
+     * Récupère le nom du client
+     * @returns {string} Nom du client
+     */
+    getName() {
+        return this.name;
     }
 
     initializeElements() {
@@ -43,27 +63,54 @@ export class STOMPWebSocketClient {
             messagesConsole: document.getElementById('messagesConsole'),
             clearBtn: document.getElementById('clearBtn')
         };
+
+        // Vérifier si tous les éléments sont disponibles (cas où l'interface n'est pas encore initialisée)
+        const hasAllElements = Object.values(this.elements).every(element => element !== null);
+        if (!hasAllElements) {
+            console.log(`Client ${this.clientId}: Certains éléments d'interface ne sont pas disponibles, ils seront initialisés plus tard`);
+        }
     }
 
     bindEvents() {
-        this.elements.connectBtn.addEventListener('click', () => this.connect());
-        this.elements.disconnectBtn.addEventListener('click', () => this.disconnect());
-        this.elements.subscribeBtn.addEventListener('click', () => this.subscribe());
-        this.elements.sendBtn.addEventListener('click', () => this.sendMessage());
-        this.elements.clearBtn.addEventListener('click', () => this.clearMessages());
+        // Vérifier si les éléments existent avant d'ajouter les événements
+        if (this.elements.connectBtn) {
+            this.elements.connectBtn.addEventListener('click', () => this.connect());
+        }
+
+        if (this.elements.disconnectBtn) {
+            this.elements.disconnectBtn.addEventListener('click', () => this.disconnect());
+        }
+
+        if (this.elements.subscribeBtn) {
+            this.elements.subscribeBtn.addEventListener('click', () => this.subscribe());
+        }
+
+        if (this.elements.sendBtn) {
+            this.elements.sendBtn.addEventListener('click', () => this.sendMessage());
+        }
+
+        if (this.elements.clearBtn) {
+            this.elements.clearBtn.addEventListener('click', () => this.clearMessages());
+        }
 
         // Événements clavier
-        this.elements.topicPath.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.subscribe();
-        });
+        if (this.elements.topicPath) {
+            this.elements.topicPath.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') this.subscribe();
+            });
+        }
 
-        this.elements.sendMessage.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.sendMessage();
-        });
+        if (this.elements.sendMessage) {
+            this.elements.sendMessage.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') this.sendMessage();
+            });
+        }
 
-        this.elements.wsUrl.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.connect();
-        });
+        if (this.elements.wsUrl) {
+            this.elements.wsUrl.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') this.connect();
+            });
+        }
     }
 
     connect() {
@@ -72,6 +119,9 @@ export class STOMPWebSocketClient {
             this.showMessage('Veuillez entrer une URL WebSocket valide', 'error');
             return;
         }
+
+        // Stocker l'URL pour l'affichage dans l'interface
+        this.url = url;
 
         try {
             this.showMessage('🔄 Connexion STOMP en cours...', 'info');
@@ -133,6 +183,8 @@ export class STOMPWebSocketClient {
             this.stompClient.disconnect(() => {
                 this.addMessage('🔌 Déconnexion STOMP réussie', 'SYSTEM');
                 this.onClosed();
+                // Mettre à jour l'interface multi-client
+                this.updateClientUI();
             });
         }
     }
@@ -191,6 +243,7 @@ export class STOMPWebSocketClient {
                     content: message,
                     topic: 'SENT:' + destination,
                     timestamp,
+                    clientId: this.clientId,
                     headers: {}
                 };
 
@@ -221,9 +274,12 @@ export class STOMPWebSocketClient {
         this.elements.sendMessage.disabled = false;
         this.elements.sendBtn.disabled = false;
 
+        // Mettre à jour l'interface multi-client
+        this.updateClientUI();
+
         this.showMessage('✅ Connexion STOMP établie avec succès!', 'success');
         this.clearMessages();
-        this.addMessage('🔗 Connexion STOMP établie', 'SYSTEM');
+        this.addMessage(`🔗 Connexion STOMP établie pour ${this.name}`, 'SYSTEM');
         this.addMessage(`📋 Session ID: ${frame.headers.session || 'N/A'}`, 'SYSTEM');
         this.addMessage(`🖥️ Serveur: ${frame.headers.server || 'N/A'}`, 'SYSTEM');
         this.addMessage(`💓 Heartbeat: ${this.stompClient.heartbeat.outgoing}ms`, 'SYSTEM');
@@ -236,7 +292,7 @@ export class STOMPWebSocketClient {
     onError(error) {
         this.isConnected = false;
         this.showMessage('❌ Erreur de connexion STOMP', 'error');
-        this.addMessage(`❌ Erreur STOMP: ${error}`, 'SYSTEM');
+        this.addMessage(`❌ Erreur STOMP pour ${this.name}: ${error}`, 'SYSTEM');
         this.resetConnectionState();
 
         // Gérer la reconnexion automatique si activée
@@ -253,7 +309,7 @@ export class STOMPWebSocketClient {
     onClosed() {
         this.isConnected = false;
         this.resetConnectionState();
-        this.addMessage('🔌 Connexion STOMP fermée', 'SYSTEM');
+        this.addMessage(`🔌 Connexion STOMP fermée pour ${this.name}`, 'SYSTEM');
         this.updateClientUI();
     }
 
@@ -282,6 +338,7 @@ export class STOMPWebSocketClient {
                 messageStorage.saveMessage({
                     content,
                     topic,
+                    clientId: this.clientId,
                     timestamp,
                     headers: message.headers,
                     isJson,
@@ -369,6 +426,7 @@ export class STOMPWebSocketClient {
         messageDiv.setAttribute('data-topic', topic);
         messageDiv.setAttribute('data-content', content);
         messageDiv.setAttribute('data-timestamp', timestamp);
+        messageDiv.setAttribute('data-client-id', this.clientId);
 
         // Identifier si c'est un message d'historique
         if (topic.startsWith('HISTORY:')) {

@@ -19,6 +19,27 @@ class MessageScheduler {
     }
 
     /**
+     * Définit un fournisseur de client STOMP (callback)
+     * @param {Function} clientProvider - Fonction retournant le client actif
+     */
+    setClientProvider(clientProvider) {
+        this.clientProvider = clientProvider;
+    }
+
+    /**
+     * Obtient le client STOMP à utiliser pour l'envoi
+     * @returns {Object} Client STOMP
+     */
+    getClient() {
+        // Si un fournisseur est défini, l'utiliser pour obtenir le client actif
+        if (this.clientProvider && typeof this.clientProvider === 'function') {
+            return this.clientProvider();
+        }
+        // Sinon, utiliser le client statique
+        return this.client;
+    }
+
+    /**
      * Planifie l'envoi régulier d'un message
      * @param {Object} config - Configuration de l'envoi programmé
      * @returns {number} ID de la tâche planifiée
@@ -48,7 +69,8 @@ class MessageScheduler {
 
         // Fonction d'envoi du message
         const sendScheduledMessage = () => {
-            if (!this.client || !this.client.stompClient || !this.client.stompClient.connected) {
+            const client = this.getClient();
+            if (!client || !client.stompClient || !client.stompClient.connected) {
                 console.warn('Client STOMP non connecté, message programmé non envoyé');
                 return;
             }
@@ -79,8 +101,9 @@ class MessageScheduler {
                 }
             }
 
-            // Envoyer le message
-            this.client.stompClient.send(task.config.destination, task.config.headers, messageToSend);
+            // Envoyer le message avec le client récupéré dynamiquement
+            //const client = this.getClient();
+            client.stompClient.send(task.config.destination, task.config.headers, messageToSend);
 
             // Événement d'envoi réussi
             const sendEvent = new CustomEvent('scheduledMessageSent', {

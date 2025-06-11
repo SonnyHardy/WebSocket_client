@@ -8,15 +8,47 @@
     <link rel="stylesheet" href="css/auth.css">
     <link rel="stylesheet" href="css/history.css">
     <link rel="stylesheet" href="css/scheduler.css">
+    <link rel="stylesheet" href="css/multi-client.css">
     
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 Client WebSocket STOMP</h1>
-            <p>Connexion en temps réel avec souscription aux topics</p>
+            <h1>🚀 Client WebSocket STOMP Multi-Clients</h1>
+            <p>Gestion de multiples connexions WebSocket en parallèle</p>
             <div class="library-info">
                 📚 Utilise STOMP.js pour une gestion robuste des WebSockets
+            </div>
+        </div>
+
+        <!-- Section Gestion des Clients -->
+        <div class="section clients-section">
+            <h2>👥 Clients WebSocket</h2>
+            <div id="activeClientInfo" class="active-client-info">
+                <h3>Client Actif</h3>
+                <div class="client-details">
+                    <div class="client-detail">
+                        <div class="client-detail-label">Nom</div>
+                        <div class="client-detail-value" id="activeClientName">Client 1</div>
+                    </div>
+                    <div class="client-detail">
+                        <div class="client-detail-label">Statut</div>
+                        <div class="client-detail-value" id="activeClientStatus">❌ Déconnecté</div>
+                    </div>
+                    <div class="client-detail">
+                        <div class="client-detail-label">URL</div>
+                        <div class="client-detail-value" id="activeClientUrl">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="new-client-form">
+                <input type="text" id="newClientName" placeholder="Nom du nouveau client">
+                <button class="btn btn-success" id="createClientBtn">Créer un nouveau client</button>
+            </div>
+
+            <div class="clients-grid" id="clientsList">
+                <!-- Les clients seront ajoutés ici -->
             </div>
         </div>
         
@@ -77,6 +109,10 @@
                         Conserver l'historique
                     </label>
                     <button class="btn btn-primary" id="exportBtn">Exporter JSON</button>
+                </div>
+
+                <div id="clientRadioFilters" class="client-radio-filters">
+                    <!-- Les boutons radio pour sélectionner les clients seront ajoutés ici -->
                 </div>
                 <div class="messages-console" id="messagesConsole">
                     <div style="color: #666; font-style: italic;">

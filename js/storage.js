@@ -37,6 +37,7 @@ class MessageStorage {
             const messages = this.getMessages();
             messages.push({
                 ...message,
+                clientId: message.clientId || null,
                 timestamp: message.timestamp || new Date().toISOString()
             });
 
@@ -73,6 +74,16 @@ class MessageStorage {
     getMessagesByTopic(topic) {
         const messages = this.getMessages();
         return messages.filter(msg => msg.topic === topic);
+    }
+
+    /**
+     * Récupère les messages pour un client spécifique
+     * @param {number} clientId - ID du client
+     * @returns {Array} Messages du client
+     */
+    getMessagesByClientId(clientId) {
+        const messages = this.getMessages();
+        return messages.filter(msg => msg.clientId === clientId);
     }
 
     /**

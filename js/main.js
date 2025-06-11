@@ -8,9 +8,11 @@ import { reconnectManager } from './reconnect.js';
 import { messageStorage } from './storage.js';
 import { messageScheduler } from './scheduler.js';
 import { STOMPWebSocketClient } from './stomp-client.js';
+import { clientsManager } from './clients-manager.js';
 
-// Initialiser l'application avec un client unique
-const stompClient = new STOMPWebSocketClient();
+// Initialiser l'application avec le gestionnaire de clients multiples
+// Créer un client par défaut
+const defaultClientId = clientsManager.createClient({ name: 'Client Principal' });
 
 // Configuration des modules
 reconnectManager.configure({
@@ -21,13 +23,14 @@ reconnectManager.configure({
 
 // Événements de reconnexion
 reconnectManager.setReconnectCallback(() => {
-    if (stompClient) {
-        stompClient.reconnect();
+    const activeClient = clientsManager.getActiveClient();
+    if (activeClient) {
+        activeClient.reconnect();
     }
 });
 
-// Configuration du simulateur
-messageScheduler.setClient(stompClient);
+// Configuration du simulateur avec callback pour récupérer le client actif
+messageScheduler.setClientProvider(() => clientsManager.getActiveClient());
 
 // Initialiser l'interface utilisateur
 document.addEventListener('DOMContentLoaded', () => {
@@ -91,8 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
     authElements.enableReconnect.addEventListener('change', function() {
         if (this.checked) {
             reconnectManager.setReconnectCallback(() => {
-                if (stompClient) {
-                    stompClient.reconnect();
+                const activeClient = clientsManager.getActiveClient();
+                if (activeClient) {
+                    activeClient.reconnect();
                 }
             });
             authElements.maxRetries.disabled = false;
@@ -126,15 +130,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     historyElements.searchMessages.addEventListener('input', function() {
         const query = this.value.trim();
-        if (stompClient) {
-            stompClient.filterMessages(query);
+        const activeClient = clientsManager.getActiveClient();
+        if (activeClient) {
+            activeClient.filterMessages(query);
         }
     });
 
     historyElements.topicFilter.addEventListener('change', function() {
         const topic = this.value;
-        if (stompClient) {
-            stompClient.filterByTopic(topic);
+        const activeClient = clientsManager.getActiveClient();
+        if (activeClient) {
+            activeClient.filterByTopic(topic);
         }
     });
 
@@ -243,12 +249,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateTopicFilter(topics) {
         const topicFilter = historyElements.topicFilter;
+        if (!topicFilter) return;
+
         const currentValue = topicFilter.value;
 
         // Sauvegarder la sélection actuelle
         topicFilter.innerHTML = '<option value="">Tous les topics</option>';
 
-        // Ajouter les topics du client
+        // Ajouter les topics du client actif
         topics.forEach(topic => {
             const option = document.createElement('option');
             option.value = topic;
@@ -263,10 +271,221 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initialiser l'interface
-    if (stompClient.subscribedTopics) {
-        updateTopicFilter(Array.from(stompClient.subscribedTopics.keys()));
+    const activeClient = clientsManager.getActiveClient();
+    if (activeClient && activeClient.subscribedTopics) {
+        updateTopicFilter(Array.from(activeClient.subscribedTopics.keys()));
     }
+
+    // Initialiser l'interface des clients multiples
+    initMultiClientInterface();
 });
+
+// Fonction pour initialiser l'interface multi-client
+function initMultiClientInterface() {
+    const newClientNameInput = document.getElementById('newClientName');
+    const createClientBtn = document.getElementById('createClientBtn');
+    const clientsList = document.getElementById('clientsList');
+    const clientRadioFilters = document.getElementById('clientRadioFilters');
+
+    // Mise à jour des informations du client actif
+    function updateActiveClientInfo() {
+        const activeClient = clientsManager.getActiveClient();
+        if (activeClient) {
+            document.getElementById('activeClientName').textContent = activeClient.name;
+            document.getElementById('activeClientStatus').innerHTML = activeClient.isConnected ? 
+                '✅ Connecté' : '❌ Déconnecté';
+            document.getElementById('activeClientUrl').textContent = activeClient.url || '-';
+        }
+    }
+
+    // Création d'une carte de client pour l'UI
+    function createClientCard(client, id) {
+        const card = document.createElement('div');
+        card.className = `client-card ${id === clientsManager.activeClientId ? 'active' : ''}`;
+        card.setAttribute('data-client-id', id);
+
+        const topicsHtml = Array.from(client.subscribedTopics.keys())
+            .map(topic => `<span class="client-topic">${topic}</span>`)
+            .join('');
+
+        card.innerHTML = `
+            <div class="client-header">
+                <h3 class="client-name">${client.name}</h3>
+                <span class="client-status ${client.isConnected ? 'connected' : 'disconnected'}">
+                    ${client.isConnected ? 'Connecté' : 'Déconnecté'}
+                </span>
+            </div>
+            <div class="client-url">${client.url || 'Non connecté'}</div>
+            <div class="client-topics">
+                ${topicsHtml || '<span class="client-topic">Aucun topic</span>'}
+            </div>
+            <div class="client-actions">
+                <button class="btn btn-primary btn-sm select-client-btn">Sélectionner</button>
+                <button class="btn btn-danger btn-sm remove-client-btn">Supprimer</button>
+            </div>
+        `;
+
+        // Événement pour sélectionner un client
+        card.querySelector('.select-client-btn').addEventListener('click', () => {
+            clientsManager.setActiveClient(id);
+            updateClientsList();
+            updateActiveClientInfo();
+
+            // Mettre à jour les filtres et la console
+            const activeClient = clientsManager.getActiveClient();
+            if (activeClient) {
+                // Ne pas effacer la console pour conserver tous les messages
+                // On utilise les boutons radio pour filtrer
+
+                // Sélectionner le bouton radio correspondant au client actif
+                const radioButtons = document.querySelectorAll('input[name="clientFilter"]');
+                radioButtons.forEach(radio => {
+                    if (radio.value === id.toString()) {
+                        radio.checked = true;
+
+                        // Déclencher l'événement change pour filtrer les messages
+                        const event = new Event('change');
+                        radio.dispatchEvent(event);
+
+                        // Mettre à jour l'apparence des labels
+                        const labels = document.querySelectorAll('.client-radio-label');
+                        labels.forEach(label => {
+                            label.classList.remove('active');
+                        });
+                        radio.parentNode.classList.add('active');
+                    }
+                });
+
+                // Mettre à jour le filtre de topics
+                updateTopicFilter(Array.from(activeClient.subscribedTopics.keys()));
+            }
+        });
+
+        // Événement pour supprimer un client
+        card.querySelector('.remove-client-btn').addEventListener('click', () => {
+            if (clientsManager.clients.size <= 1) {
+                showMessage('Impossible de supprimer le dernier client', 'error');
+                return;
+            }
+
+            clientsManager.removeClient(id);
+            updateClientsList();
+            updateActiveClientInfo();
+        });
+
+        return card;
+    }
+
+    // Mise à jour de la liste des clients
+    function updateClientsList() {
+        clientsList.innerHTML = '';
+
+        clientsManager.clients.forEach((client, id) => {
+            clientsList.appendChild(createClientCard(client, id));
+        });
+
+        // Mettre à jour les boutons radio pour le filtrage des messages
+        updateClientRadioFilters();
+    }
+
+    // Mise à jour des boutons radio pour le filtrage des messages par client
+    function updateClientRadioFilters() {
+        if (!clientRadioFilters) return;
+
+        clientRadioFilters.innerHTML = '';
+
+        // Option pour afficher tous les clients
+        const allClientsLabel = document.createElement('label');
+        allClientsLabel.className = 'client-radio-label';
+        allClientsLabel.innerHTML = `
+            <input type="radio" name="clientFilter" value="all" checked>
+            Tous les clients
+        `;
+        clientRadioFilters.appendChild(allClientsLabel);
+
+        // Option pour chaque client
+        clientsManager.clients.forEach((client, id) => {
+            const label = document.createElement('label');
+            label.className = 'client-radio-label';
+            label.innerHTML = `
+                <input type="radio" name="clientFilter" value="${id}">
+                ${client.name}
+            `;
+            clientRadioFilters.appendChild(label);
+        });
+
+        // Ajouter les événements aux boutons radio
+        const radioButtons = clientRadioFilters.querySelectorAll('input[type="radio"]');
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    filterMessagesByClient(this.value);
+
+                    // Mettre à jour l'apparence des labels
+                    const labels = clientRadioFilters.querySelectorAll('.client-radio-label');
+                    labels.forEach(label => {
+                        label.classList.remove('active');
+                    });
+                    this.parentNode.classList.add('active');
+                }
+            });
+        });
+
+        // Activer le premier bouton par défaut
+        radioButtons[0].checked = true;
+        radioButtons[0].parentNode.classList.add('active');
+    }
+
+    // Événement pour créer un nouveau client
+    createClientBtn.addEventListener('click', () => {
+        const name = newClientNameInput.value.trim() || `Client ${clientsManager.nextClientId}`;
+        const clientId = clientsManager.createClient({ name });
+
+        newClientNameInput.value = '';
+        updateClientsList();
+
+        // Afficher les messages de tous les clients par défaut
+        const allClientsRadio = document.querySelector('input[name="clientFilter"][value="all"]');
+        if (allClientsRadio) {
+            allClientsRadio.checked = true;
+            filterMessagesByClient('all');
+
+            // Mettre à jour l'apparence des labels
+            const labels = document.querySelectorAll('.client-radio-label');
+            labels.forEach(label => {
+                label.classList.remove('active');
+            });
+            allClientsRadio.parentNode.classList.add('active');
+        }
+    });
+
+    // Fonction pour filtrer les messages par client
+    function filterMessagesByClient(clientIdOrAll) {
+        const messagesConsole = document.getElementById('messagesConsole');
+        if (!messagesConsole) return;
+
+        // Récupérer tous les messages dans la console
+        const allMessages = messagesConsole.querySelectorAll('.message-item');
+
+        if (clientIdOrAll === 'all') {
+            // Afficher tous les messages
+            allMessages.forEach(msg => {
+                msg.style.display = 'block';
+            });
+        } else {
+            // Filtrer par client spécifique
+            const clientId = parseInt(clientIdOrAll, 10);
+            allMessages.forEach(msg => {
+                const msgClientId = parseInt(msg.getAttribute('data-client-id'), 10);
+                msg.style.display = (msgClientId === clientId) ? 'block' : 'none';
+            });
+        }
+    }
+
+    // Initialisation
+    updateClientsList();
+    updateActiveClientInfo();
+}
 
 // Fonction utilitaire pour afficher des messages temporaires
 function showMessage(text, type) {
@@ -279,5 +498,44 @@ function showMessage(text, type) {
     }
 }
 
-// Exposer l'instance pour l'accès global
-window.stompClient = stompClient;
+// Fonction pour charger tous les messages historiques dans la console
+function loadAllClientsMessages() {
+    if (!messageStorage.isStorageEnabled()) return;
+
+    const messagesConsole = document.getElementById('messagesConsole');
+    if (!messagesConsole) return;
+
+    // Effacer la console
+    messagesConsole.innerHTML = '';
+
+    // Récupérer tous les messages et les trier par timestamp
+    const allMessages = messageStorage.getMessages();
+    allMessages.sort((a, b) => {
+        return new Date(a.timestamp) - new Date(b.timestamp);
+    });
+
+    // Afficher chaque message dans la console
+    allMessages.forEach(msg => {
+        // Trouver le client correspondant
+        const client = clientsManager.getClient(msg.clientId);
+        if (client) {
+            client.addMessage(
+                msg.content,
+                'HISTORY:' + msg.topic,
+                msg.headers || {},
+                msg.isJson || false,
+                msg.jsonObject || null
+            );
+        }
+    });
+}
+
+// Charger tous les messages après l'initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        loadAllClientsMessages();
+    }, 500); // Petit délai pour s'assurer que l'interface est prête
+});
+
+// Exposer les instances pour l'accès global
+window.clientsManager = clientsManager;
