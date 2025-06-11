@@ -431,6 +431,26 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:foc
     cursor: pointer;
 }
 
+.info-text {
+    background-color: #e8f4f8;
+    border-left: 3px solid #4facfe;
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 6px;
+    font-size: 0.9em;
+    color: #495057;
+    animation: fadeIn 0.3s ease;
+}
+
+.info-text code {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-family: 'Courier New', monospace;
+    color: #dc3545;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
