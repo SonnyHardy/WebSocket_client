@@ -1,100 +1,100 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client WebSocket STOMP - Topics</title>
+    <title>STOMP WebSocket Client - Topics</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/auth.css">
     <link rel="stylesheet" href="css/history.css">
     <link rel="stylesheet" href="css/scheduler.css">
-    
+
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 Client WebSocket STOMP</h1>
-            <p>Connexion en temps réel avec souscription aux topics</p>
+            <h1>🚀 STOMP WebSocket Client</h1>
+            <p>Real-time connection with topic subscription</p>
             <div class="library-info">
-                📚 Utilise STOMP.js pour une gestion robuste des WebSockets
+                📚 Uses STOMP.js for robust WebSocket management
             </div>
         </div>
         
         <div class="content">
-            <!-- Section Connexion -->
+            <!-- Connection Section -->
             <div class="section">
                 <h2>
                     <div class="status-indicator" id="connectionStatus"></div>
-                    Connexion WebSocket STOMP
+                    STOMP WebSocket Connection
                 </h2>
                 <div class="input-row">
-                    <input type="text" id="wsUrl" placeholder="URL WebSocket" value="http://localhost:8080/ws">
-                    <input type="text" id="username" placeholder="Nom d'utilisateur (optionnel)">
-                    <input type="text" id="password" placeholder="Mot de passe (optionnel)">
+                    <input type="text" id="wsUrl" placeholder="http://localhost:8080/ws">
+                    <input type="text" id="username" placeholder="Username (optional)">
+                    <input type="text" id="password" placeholder="Password (optional)">
                 </div>
                 <div class="input-group">
-                    <button class="btn btn-primary" id="connectBtn">Connecter</button>
-                    <button class="btn btn-danger" id="disconnectBtn" disabled>Déconnecter</button>
+                    <button class="btn btn-primary" id="connectBtn">Connect</button>
+                    <button class="btn btn-danger" id="disconnectBtn" disabled>Disconnect</button>
                 </div>
                 <div id="connectionMessage"></div>
             </div>
 
-            <!-- Section Souscription -->
+            <!-- Subscription Section -->
             <div class="section">
-                <h2>📡 Souscription aux Topics</h2>
+                <h2>📡 Topic Subscription</h2>
                 <div class="input-group">
                     <input type="text" id="topicPath" placeholder="/topic/notifications" disabled>
-                    <button class="btn btn-success" id="subscribeBtn" disabled>S'abonner</button>
+                    <button class="btn btn-success" id="subscribeBtn" disabled>Subscribe</button>
                 </div>
                 <div class="topics-list" id="topicsList"></div>
             </div>
 
-            <!-- Section Envoi de messages -->
+            <!-- Send Message Section -->
             <div class="section send-section">
-                <h2>📤 Envoyer un Message</h2>
+                <h2>📤 Send a Message</h2>
                 <div class="input-row">
                     <input type="text" id="sendDestination" placeholder="Destination (/app/hello)" disabled>
-                    <input type="text" id="sendMessage" placeholder="Message à envoyer" disabled>
+                    <input type="text" id="sendMessage" placeholder="Message to send" disabled>
                 </div>
                 <div class="input-group">
-                    <button class="btn btn-primary" id="sendBtn" disabled>Envoyer</button>
+                    <button class="btn btn-primary" id="sendBtn" disabled>Send</button>
                 </div>
             </div>
 
-            <!-- Section Messages -->
+            <!-- Messages Section -->
             <div class="section">
-                <h2>💬 Messages Reçus</h2>
+                <h2>💬 Received Messages</h2>
                 <div class="input-group">
-                    <button class="btn btn-danger" id="clearBtn">Effacer la console</button>
-                    <input type="text" id="searchMessages" placeholder="Rechercher dans les messages...">
+                    <button class="btn btn-danger" id="clearBtn">Clear Console</button>
+                    <input type="text" id="searchMessages" placeholder="Search in messages...">
                 </div>
                 <div class="filter-container">
                     <select id="topicFilter">
-                        <option value="">Tous les topics</option>
+                        <option value="">All topics</option>
                     </select>
                     <label class="history-toggle">
                         <input type="checkbox" id="enableHistory">
-                        Conserver l'historique
+                        Keep history
                     </label>
-                    <button class="btn btn-primary" id="exportBtn">Exporter JSON</button>
+                    <button class="btn btn-primary" id="exportBtn">Export JSON</button>
                 </div>
                 <div class="messages-console" id="messagesConsole">
                     <div style="color: #666; font-style: italic;">
-                        🔌 En attente de connexion STOMP...
-                        <br>ℹ️ STOMP.js permet une gestion avancée des WebSockets avec:
-                        <br>• Reconnexion automatique
-                        <br>• Gestion des heartbeats
-                        <br>• Support des en-têtes personnalisés
-                        <br>• Transactions et accusés de réception
+                        🔌 Waiting for STOMP connection...
+                        <br>ℹ️ STOMP.js enables advanced WebSocket management with:
+                        <br>• Automatic reconnection
+                        <br>• Heartbeat management
+                        <br>• Custom headers support
+                        <br>• Transactions and acknowledgments
                     </div>
                 </div>
             </div>
 
-            <!-- Section Authentification Avancée -->
+            <!-- Advanced Authentication Section -->
             <div class="section auth-section">
-                <h2>🔒 Authentification Avancée</h2>
+                <h2>🔒 Advanced Authentication</h2>
                 <div class="input-row">
-                    <input type="text" id="authToken" placeholder="Token JWT / OAuth2">
+                    <input type="text" id="authToken" placeholder="JWT / OAuth2 Token">
                     <select id="tokenType">
                         <option value="Bearer">Bearer</option>
                         <option value="Basic">Basic</option>
@@ -102,43 +102,43 @@
                     </select>
                 </div>
                 <div class="input-group">
-                    <button class="btn btn-primary" id="applyTokenBtn">Appliquer Token</button>
-                    <button class="btn btn-danger" id="clearTokenBtn">Effacer Token</button>
+                    <button class="btn btn-primary" id="applyTokenBtn">Apply Token</button>
+                    <button class="btn btn-danger" id="clearTokenBtn">Clear Token</button>
                 </div>
                 <div class="reconnect-options">
-                    <h3>Reconnexion Automatique</h3>
+                    <h3>Automatic Reconnection</h3>
                     <div class="input-row">
                         <label>
                             <input type="checkbox" id="enableReconnect" checked>
-                            Activer la reconnexion auto
+                            Enable auto reconnection
                         </label>
-                        <input type="number" id="maxRetries" placeholder="Nb essais max" value="10" min="1" max="100">
-                        <input type="number" id="initialDelay" placeholder="Délai initial (ms)" value="1000" min="100">
+                        <input type="number" id="maxRetries" placeholder="Max retries" value="10" min="1" max="100">
+                        <input type="number" id="initialDelay" placeholder="Initial delay (ms)" value="1000" min="100">
                     </div>
                 </div>
             </div>
 
-            <!-- Section Simulateur -->
+            <!-- Simulator Section -->
             <div class="section simulator-section">
-                <h2>📊 Simulateur d'envoi programmé</h2>
+                <h2>📊 Scheduled Message Simulator</h2>
                 <div class="input-row">
                     <input type="text" id="schedulerDestination" placeholder="Destination (/app/hello)">
-                    <textarea id="schedulerMessage" placeholder="Message à envoyer (JSON accepté)"></textarea>
+                    <textarea id="schedulerMessage" placeholder="Message to send (JSON accepted)"></textarea>
                 </div>
                 <div class="input-row">
-                    <input type="number" id="intervalSeconds" placeholder="Intervalle (sec)" value="5" min="1">
-                    <input type="number" id="iterations" placeholder="Nb d'itérations (0 = infini)" value="0" min="0">
+                    <input type="number" id="intervalSeconds" placeholder="Interval (sec)" value="5" min="1">
+                    <input type="number" id="iterations" placeholder="Number of iterations (0 = infinite)" value="0" min="0">
                     <label class="variable-data">
                         <input type="checkbox" id="variableData" checked>
-                        Données variables
+                        Variable data
                     </label>
                 </div>
                 <div class="input-group">
-                    <button class="btn btn-primary" id="startSchedulerBtn">Démarrer Envoi</button>
-                    <button class="btn btn-danger" id="stopSchedulerBtn" disabled>Arrêter Envoi</button>
+                    <button class="btn btn-primary" id="startSchedulerBtn">Start Sending</button>
+                    <button class="btn btn-danger" id="stopSchedulerBtn" disabled>Stop Sending</button>
                 </div>
                 <div class="active-tasks" id="activeTasks">
-                    <!-- Les tâches actives seront ajoutées ici -->
+                    <!-- Active tasks will be added here -->
                 </div>
             </div>
 
@@ -150,7 +150,7 @@
     <!-- STOMP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
-    <!-- Modules du client STOMP -->
+    <!-- STOMP client modules -->
     <script type="module" src="js/main.js"></script>
     
 </body>

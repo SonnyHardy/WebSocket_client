@@ -1,80 +1,80 @@
 # WebSocket_client
-# Client WebSocket STOMP
+# STOMP WebSocket Client
 
-Client web pour interagir avec des serveurs WebSocket utilisant le protocole STOMP (Simple Text Oriented Messaging Protocol).
+Web client for interacting with WebSocket servers using the STOMP protocol (Simple Text Oriented Messaging Protocol).
 
-## Caractéristiques
+## Features
 
-### Fonctionnalités de base
+### Basic Features
 
-- ✅ Connexion WebSocket STOMP à n'importe quel serveur
-- ✅ Souscription à des topics
-- ✅ Envoi de messages vers des destinations
-- ✅ Affichage des messages reçus avec formatage JSON
+- ✅ STOMP WebSocket connection to any server
+- ✅ Topic subscription
+- ✅ Message sending to destinations
+- ✅ Display of received messages with JSON formatting
 
-### Fonctionnalités avancées
+### Advanced Features
 
-- 🔒 **Authentification JWT / OAuth2**
-  - Support des tokens d'authentification dans les headers
-  - Persistance des tokens entre les sessions
+- 🔒 **JWT / OAuth2 Authentication**
+  - Authentication token support in headers
+  - Token persistence between sessions
 
-- 🔄 **Reconnexion automatique avec backoff**
-  - Tentatives de reconnexion avec délai progressif
-  - Configuration du nombre maximal de tentatives
+- 🔄 **Automatic reconnection with backoff**
+  - Reconnection attempts with progressive delay
+  - Configuration of maximum number of attempts
 
-- 📊 **Historique des messages**
-  - Conservation des messages dans le localStorage
-  - Filtrage par topic et recherche
-  - Export des messages au format JSON
+- 📊 **Message History**
+  - Message storage in localStorage
+  - Filtering by topic and search
+  - Export messages in JSON format
 
-- ⏱️ **Simulateur d'envoi programmé**
-  - Envoi de messages à intervalle régulier
-  - Support des données variables
-  - Configuration du nombre d'itérations
+- ⏱️ **Scheduled Message Simulator**
+  - Regular interval message sending
+  - Variable data support
+  - Configuration of number of iterations
 
-## Technologies utilisées
+## Technologies Used
 
 - HTML5 / CSS3 / JavaScript (ES6+)
-- STOMP.js pour la gestion du protocole STOMP
-- SockJS pour le transport WebSocket
-- Modules JavaScript pour une architecture modulaire
+- STOMP.js for STOMP protocol management
+- SockJS for WebSocket transport
+- JavaScript modules for a modular architecture
 
-## Structure du projet
+## Project Structure
 
 ```
 /
-├── index.html            # Page principale
+├── index.html            # Main page
 ├── css/
-│   ├── styles.css        # Styles principaux
-│   ├── auth.css          # Styles pour l'authentification
-│   ├── history.css       # Styles pour l'historique
-│   └── scheduler.css     # Styles pour le simulateur
+│   ├── styles.css        # Main styles
+│   ├── auth.css          # Authentication styles
+│   ├── history.css       # History styles
+│   └── scheduler.css     # Simulator styles
 ├── js/
-│   ├── main.js           # Point d'entrée principal
-│   ├── stomp-client.js   # Client STOMP principal
-│   ├── auth.js           # Gestion de l'authentification
-│   ├── reconnect.js      # Gestion de la reconnexion
-│   ├── storage.js        # Stockage des messages
-│   └── scheduler.js      # Envoi programmé
+│   ├── main.js           # Main entry point
+│   ├── stomp-client.js   # Main STOMP client
+│   ├── auth.js           # Authentication management
+│   ├── reconnect.js      # Reconnection management
+│   ├── storage.js        # Message storage
+│   └── scheduler.js      # Scheduled sending
 └── README.md            # Documentation
 ```
 
-## Utilisation
+## Usage
 
-1. Ouvrez `index.html` dans un navigateur moderne
-2. Entrez l'URL du serveur WebSocket STOMP (par exemple `localhost:8080/ws`)
-3. Connectez-vous au serveur
-4. Souscrivez à des topics (par exemple `/topic/notifications`)
-5. Envoyez des messages vers des destinations (par exemple `/app/hello`)
+1. Open `index.html` in a modern browser
+2. Enter the STOMP WebSocket server URL (for example `localhost:8080/ws`)
+3. Connect to the server
+4. Subscribe to topics (for example `/topic/notifications`)
+5. Send messages to destinations (for example `/app/hello`)
 
-## Développement
+## Development
 
-Le projet est organisé de manière modulaire avec des modules JavaScript ES6 indépendants qui permettent une maintenance et une évolution faciles.
+The project is organized in a modular way with independent ES6 JavaScript modules that allow for easy maintenance and evolution.
 
-Chaque fonctionnalité est implémentée dans son propre module avec des responsabilités claires :
+Each feature is implemented in its own module with clear responsibilities:
 
-- `stomp-client.js` : Gestion de la connexion STOMP de base
-- `auth.js` : Authentification avancée
-- `reconnect.js` : Logique de reconnexion automatique
-- `storage.js` : Persistance et gestion de l'historique
-- `scheduler.js` : Fonctionnalités d'envoi programmé
+- `stomp-client.js`: Basic STOMP connection management
+- `auth.js`: Advanced authentication
+- `reconnect.js`: Automatic reconnection logic
+- `storage.js`: History persistence and management
+- `scheduler.js`: Scheduled sending features

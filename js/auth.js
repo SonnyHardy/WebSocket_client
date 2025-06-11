@@ -1,5 +1,5 @@
 /**
- * Module d'authentification pour gérer JWT/OAuth2
+ * Authentication module for managing JWT/OAuth2
  */
 
 class AuthenticationManager {
@@ -9,15 +9,15 @@ class AuthenticationManager {
     }
 
     /**
-     * Définit le token d'authentification
-     * @param {string} token - Le token JWT/OAuth2
-     * @param {string} type - Le type de token (Bearer, etc.)
+     * Sets the authentication token
+     * @param {string} token - The JWT/OAuth2 token
+     * @param {string} type - The token type (Bearer, etc.)
      */
     setAuthToken(token, type = 'Bearer') {
         this.authToken = token;
         this.tokenType = type;
 
-        // Persistance des données
+        // Data persistence
         if (token) {
             localStorage.setItem('stomp_auth_token', token);
             localStorage.setItem('stomp_token_type', type);
@@ -28,31 +28,31 @@ class AuthenticationManager {
     }
 
     /**
-     * Récupère le token d'authentification
-     * @returns {string} Le token
+     * Gets the authentication token
+     * @returns {string} The token
      */
     getAuthToken() {
         return this.authToken;
     }
 
     /**
-     * Récupère le type de token
-     * @returns {string} Le type de token
+     * Gets the token type
+     * @returns {string} The token type
      */
     getTokenType() {
         return this.tokenType;
     }
 
     /**
-     * Vérifie si un token d'authentification est défini
-     * @returns {boolean} Vrai si un token est défini
+     * Checks if an authentication token is set
+     * @returns {boolean} True if a token is set
      */
     hasAuthToken() {
         return !!this.authToken;
     }
 
     /**
-     * Efface le token d'authentification
+     * Clears the authentication token
      */
     clearAuthToken() {
         this.authToken = '';
@@ -62,9 +62,9 @@ class AuthenticationManager {
     }
 
     /**
-     * Applique les en-têtes d'authentification aux en-têtes de connexion STOMP
-     * @param {Object} headers - Les en-têtes de connexion STOMP
-     * @returns {Object} Les en-têtes avec authentification
+     * Applies authentication headers to STOMP connection headers
+     * @param {Object} headers - STOMP connection headers
+     * @returns {Object} Headers with authentication
      */
     applyAuthHeaders(headers = {}) {
         if (this.hasAuthToken()) {
@@ -74,5 +74,5 @@ class AuthenticationManager {
     }
 }
 
-// Exporter une instance unique
+// Export a single instance
 export const authManager = new AuthenticationManager();

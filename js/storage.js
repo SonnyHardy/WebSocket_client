@@ -1,17 +1,17 @@
 /**
- * Module de gestion du stockage des messages avec localStorage
+ * Message storage management module using localStorage
  */
 
 class MessageStorage {
     constructor() {
         this.storageKey = 'stomp_message_history';
-        this.maxMessages = 200; // Nombre maximum de messages à conserver
+        this.maxMessages = 200; // Maximum number of messages to keep
         this.isEnabled = localStorage.getItem('stomp_storage_enabled') === 'true';
     }
 
     /**
-     * Active ou désactive le stockage des messages
-     * @param {boolean} enabled - État d'activation
+     * Enable or disable message storage
+     * @param {boolean} enabled - Activation state
      */
     setEnabled(enabled) {
         this.isEnabled = enabled;
@@ -19,16 +19,16 @@ class MessageStorage {
     }
 
     /**
-     * Vérifie si le stockage est activé
-     * @returns {boolean} État d'activation
+     * Check if storage is enabled
+     * @returns {boolean} Activation state
      */
     isStorageEnabled() {
         return this.isEnabled;
     }
 
     /**
-     * Enregistre un message dans l'historique
-     * @param {Object} message - Message à enregistrer
+     * Save a message in history
+     * @param {Object} message - Message to save
      */
     saveMessage(message) {
         if (!this.isEnabled) return;
@@ -40,35 +40,35 @@ class MessageStorage {
                 timestamp: message.timestamp || new Date().toISOString()
             });
 
-            // Limiter le nombre de messages stockés
+            // Limit the number of stored messages
             if (messages.length > this.maxMessages) {
                 messages.splice(0, messages.length - this.maxMessages);
             }
 
             localStorage.setItem(this.storageKey, JSON.stringify(messages));
         } catch (error) {
-            console.error('Erreur lors de la sauvegarde du message:', error);
+            console.error('Error saving message:', error);
         }
     }
 
     /**
-     * Récupère tous les messages de l'historique
-     * @returns {Array} Liste des messages
+     * Retrieve all history messages
+     * @returns {Array} List of messages
      */
     getMessages() {
         try {
             const messagesJson = localStorage.getItem(this.storageKey);
             return messagesJson ? JSON.parse(messagesJson) : [];
         } catch (error) {
-            console.error('Erreur lors de la récupération des messages:', error);
+            console.error('Error retrieving messages:', error);
             return [];
         }
     }
 
     /**
-     * Filtre les messages par topic
-     * @param {string} topic - Topic à filtrer
-     * @returns {Array} Messages filtrés
+     * Filter messages by topic
+     * @param {string} topic - Topic to filter
+     * @returns {Array} Filtered messages
      */
     getMessagesByTopic(topic) {
         const messages = this.getMessages();
@@ -76,9 +76,9 @@ class MessageStorage {
     }
 
     /**
-     * Recherche dans les messages
-     * @param {string} query - Terme de recherche
-     * @returns {Array} Messages correspondants
+     * Search through messages
+     * @param {string} query - Search term
+     * @returns {Array} Matching messages
      */
     searchMessages(query) {
         if (!query) return this.getMessages();
@@ -95,22 +95,22 @@ class MessageStorage {
     }
 
     /**
-     * Efface tous les messages de l'historique
+     * Clear all messages from history
      */
     clearMessages() {
         localStorage.removeItem(this.storageKey);
     }
 
     /**
-     * Exporte l'historique des messages au format JSON
-     * @returns {string} JSON des messages
+     * Export message history as JSON
+     * @returns {string} Messages in JSON format
      */
     exportMessagesAsJson() {
         return JSON.stringify(this.getMessages(), null, 2);
     }
 
     /**
-     * Télécharge l'historique des messages sous forme de fichier JSON
+     * Download message history as a JSON file
      */
     downloadMessagesAsJson() {
         const data = this.exportMessagesAsJson();
@@ -130,5 +130,5 @@ class MessageStorage {
     }
 }
 
-// Exporter une instance unique
+// Export a single instance
 export const messageStorage = new MessageStorage();

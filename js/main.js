@@ -1,37 +1,37 @@
 /**
- * Module principal qui intègre tous les modules du client STOMP
+ * Main module that integrates all STOMP client modules
  */
 
-// Importer les modules
+// Import modules
 import { authManager } from './auth.js';
 import { reconnectManager } from './reconnect.js';
 import { messageStorage } from './storage.js';
 import { messageScheduler } from './scheduler.js';
 import { STOMPWebSocketClient } from './stomp-client.js';
 
-// Initialiser l'application avec un client unique
+// Initialize the application with a single client
 const stompClient = new STOMPWebSocketClient();
 
-// Configuration des modules
+// Module configuration
 reconnectManager.configure({
     initialDelay: 1000,
     maxDelay: 30000,
     maxReconnectAttempts: 10
 });
 
-// Événements de reconnexion
+// Reconnection events
 reconnectManager.setReconnectCallback(() => {
     if (stompClient) {
         stompClient.reconnect();
     }
 });
 
-// Configuration du simulateur
+// Scheduler configuration
 messageScheduler.setClient(stompClient);
 
-// Initialiser l'interface utilisateur
+// Initialize user interface
 document.addEventListener('DOMContentLoaded', () => {
-    // Interface pour authentification JWT/OAuth2
+    // JWT/OAuth2 authentication interface
     const authElements = {
         authToken: document.getElementById('authToken'),
         tokenType: document.getElementById('tokenType'),
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initialDelay: document.getElementById('initialDelay')
     };
 
-    // Interface pour la gestion de l'historique
+    // History management interface
     const historyElements = {
         enableHistory: document.getElementById('enableHistory'),
         searchMessages: document.getElementById('searchMessages'),
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         exportBtn: document.getElementById('exportBtn')
     };
 
-    // Interface pour le simulateur
+    // Scheduler interface
     const schedulerElements = {
         schedulerDestination: document.getElementById('schedulerDestination'),
         schedulerMessage: document.getElementById('schedulerMessage'),
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 
-    // Initialisation de l'interface d'authentification
+    // Authentication interface initialization
     if (authManager.hasAuthToken()) {
         authElements.authToken.value = authManager.getAuthToken();
         authElements.tokenType.value = authManager.getTokenType();
@@ -74,9 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const type = authElements.tokenType.value;
         authManager.setAuthToken(token, type);
         if (token) {
-            showMessage('Token d\'authentification appliqué', 'success');
+            showMessage('Authentication token applied', 'success');
         } else {
-            showMessage('Token d\'authentification effacé', 'info');
+            showMessage('Authentication token cleared', 'info');
         }
     });
 
@@ -84,10 +84,10 @@ document.addEventListener('DOMContentLoaded', () => {
         authManager.clearAuthToken();
         authElements.authToken.value = '';
         authElements.tokenType.value = 'Bearer';
-        showMessage('Token d\'authentification effacé', 'info');
+        showMessage('Authentication token cleared', 'info');
     });
 
-    // Paramètres de reconnexion
+    // Reconnection parameters
     authElements.enableReconnect.addEventListener('change', function() {
         if (this.checked) {
             reconnectManager.setReconnectCallback(() => {
@@ -112,15 +112,15 @@ document.addEventListener('DOMContentLoaded', () => {
         reconnectManager.configure({ initialDelay: parseInt(this.value, 10) || 1000 });
     });
 
-    // Initialisation de l'interface d'historique
+    // History interface initialization
     historyElements.enableHistory.checked = messageStorage.isStorageEnabled();
 
     historyElements.enableHistory.addEventListener('change', function() {
         messageStorage.setEnabled(this.checked);
         if (this.checked) {
-            showMessage('Conservation de l\'historique activée', 'success');
+            showMessage('Message history storage enabled', 'success');
         } else {
-            showMessage('Conservation de l\'historique désactivée', 'info');
+            showMessage('Message history storage disabled', 'info');
         }
     });
 
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageStorage.downloadMessagesAsJson();
     });
 
-    // Initialisation de l'interface du simulateur
+    // Scheduler interface initialization
     schedulerElements.startSchedulerBtn.addEventListener('click', () => {
         const destination = schedulerElements.schedulerDestination.value.trim();
         const message = schedulerElements.schedulerMessage.value.trim();
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const variableData = schedulerElements.variableData.checked;
 
         if (!destination || !message) {
-            showMessage('Veuillez remplir la destination et le message', 'error');
+            showMessage('Please fill in both destination and message', 'error');
             return;
         }
 
@@ -167,12 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             schedulerElements.startSchedulerBtn.disabled = true;
             schedulerElements.stopSchedulerBtn.disabled = false;
-            showMessage(`Envoi programmé démarré avec intervalle de ${intervalSeconds}s`, 'success');
+            showMessage(`Scheduled sending started with ${intervalSeconds}s interval`, 'success');
 
-            // Ajouter la tâche à l'interface
+            // Add task to the interface
             updateActiveTasksUI();
         } catch (error) {
-            showMessage(`Erreur: ${error.message}`, 'error');
+            showMessage(`Error: ${error.message}`, 'error');
         }
     });
 
@@ -181,19 +181,19 @@ document.addEventListener('DOMContentLoaded', () => {
         schedulerElements.startSchedulerBtn.disabled = false;
         schedulerElements.stopSchedulerBtn.disabled = true;
         schedulerElements.activeTasks.innerHTML = '';
-        showMessage('Tous les envois programmés ont été arrêtés', 'info');
+        showMessage('All scheduled sendings have been stopped', 'info');
     });
 
-    // Écouter les événements d'envoi programmé
+    // Listen for scheduled sending events
     document.addEventListener('scheduledMessageSent', (event) => {
         const { taskId, destination, message, iteration } = event.detail;
-        console.log(`Tâche ${taskId}: Message ${iteration} envoyé vers ${destination}`);
+        console.log(`Task ${taskId}: Message ${iteration} sent to ${destination}`);
         updateActiveTasksUI();
     });
 
     document.addEventListener('scheduledTaskCompleted', (event) => {
         const { taskId } = event.detail;
-        console.log(`Tâche ${taskId}: Terminée`);
+        console.log(`Task ${taskId}: Completed`);
         updateActiveTasksUI();
 
         if (messageScheduler.getActiveTasks().length === 0) {
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         schedulerElements.activeTasks.innerHTML = '';
 
         if (tasks.length === 0) {
-            schedulerElements.activeTasks.innerHTML = '<p>Aucune tâche active</p>';
+            schedulerElements.activeTasks.innerHTML = '<p>No active tasks</p>';
             return;
         }
 
@@ -218,17 +218,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="task-info">
                     <h4>${task.destination} <span class="task-counter">${task.currentIteration}${task.iterations ? '/' + task.iterations : ''}</span></h4>
                     <div class="task-details">
-                        Intervalle: ${task.intervalSeconds}s | 
-                        ${task.variableData ? 'Données variables' : 'Données fixes'}
+                        Interval: ${task.intervalSeconds}s | 
+                        ${task.variableData ? 'Variable data' : 'Fixed data'}
                     </div>
                 </div>
                 <div class="task-action">
-                    <button class="task-stop" data-task-id="${task.id}">Arrêter</button>
+                    <button class="task-stop" data-task-id="${task.id}">Stop</button>
                 </div>
             `;
             schedulerElements.activeTasks.appendChild(taskElement);
 
-            // Ajouter l'événement pour arrêter une tâche spécifique
+            // Add event to stop a specific task
             taskElement.querySelector('.task-stop').addEventListener('click', (e) => {
                 const taskId = parseInt(e.target.getAttribute('data-task-id'), 10);
                 messageScheduler.stopScheduledTask(taskId);
@@ -245,10 +245,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const topicFilter = historyElements.topicFilter;
         const currentValue = topicFilter.value;
 
-        // Sauvegarder la sélection actuelle
-        topicFilter.innerHTML = '<option value="">Tous les topics</option>';
+        // Save the current selection
+        topicFilter.innerHTML = '<option value="">All topics</option>';
 
-        // Ajouter les topics du client
+        // Add client topics
         topics.forEach(topic => {
             const option = document.createElement('option');
             option.value = topic;
@@ -256,19 +256,19 @@ document.addEventListener('DOMContentLoaded', () => {
             topicFilter.appendChild(option);
         });
 
-        // Restaurer la sélection si possible
+        // Restore selection if possible
         if (currentValue && topics.includes(currentValue)) {
             topicFilter.value = currentValue;
         }
     }
 
-    // Initialiser l'interface
+    // Initialize the interface
     if (stompClient.subscribedTopics) {
         updateTopicFilter(Array.from(stompClient.subscribedTopics.keys()));
     }
 });
 
-// Fonction utilitaire pour afficher des messages temporaires
+// Utility function to display temporary messages
 function showMessage(text, type) {
     const connectionMessage = document.getElementById('connectionMessage');
     if (connectionMessage) {
@@ -279,5 +279,5 @@ function showMessage(text, type) {
     }
 }
 
-// Exposer l'instance pour l'accès global
+// Expose the instance for global access
 window.stompClient = stompClient;

@@ -1,11 +1,11 @@
 /**
- * Module de gestion de la reconnexion automatique avec backoff exponentiel
+ * Automatic reconnection management module with exponential backoff
  */
 
 class ReconnectionManager {
     constructor() {
-        this.initialDelay = 1000; // 1 seconde
-        this.maxDelay = 30000;    // 30 secondes
+        this.initialDelay = 1000; // 1 second
+        this.maxDelay = 30000;    // 30 seconds
         this.currentDelay = this.initialDelay;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 10;
@@ -15,8 +15,8 @@ class ReconnectionManager {
     }
 
     /**
-     * Configure la stratégie de reconnexion
-     * @param {Object} options - Options de configuration
+     * Configure the reconnection strategy
+     * @param {Object} options - Configuration options
      */
     configure(options = {}) {
         if (options.initialDelay) this.initialDelay = options.initialDelay;
@@ -25,15 +25,15 @@ class ReconnectionManager {
     }
 
     /**
-     * Définit la fonction de rappel pour la reconnexion
-     * @param {Function} callback - Fonction à appeler pour tenter une reconnexion
+     * Sets the callback function for reconnection
+     * @param {Function} callback - Function to call to attempt reconnection
      */
     setReconnectCallback(callback) {
         this.reconnectCallback = callback;
     }
 
     /**
-     * Démarre le processus de reconnexion automatique
+     * Starts the automatic reconnection process
      */
     startReconnection() {
         if (this.isReconnecting) return;
@@ -45,40 +45,40 @@ class ReconnectionManager {
     }
 
     /**
-     * Planifie la prochaine tentative de reconnexion
+     * Schedules the next reconnection attempt
      */
     scheduleReconnect() {
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
             this.stopReconnection();
-            console.warn('Nombre maximum de tentatives de reconnexion atteint');
+            console.warn('Maximum number of reconnection attempts reached');
             return;
         }
 
-        console.log(`Tentative de reconnexion dans ${this.currentDelay/1000} secondes...`);
+        console.log(`Reconnection attempt in ${this.currentDelay/1000} seconds...`);
 
         clearTimeout(this.reconnectTimer);
         this.reconnectTimer = setTimeout(() => {
             this.attemptReconnect();
         }, this.currentDelay);
 
-        // Appliquer le backoff exponentiel (mais plafonné)
+        // Apply exponential backoff (but capped)
         this.currentDelay = Math.min(this.currentDelay * 1.5, this.maxDelay);
     }
 
     /**
-     * Tente une reconnexion
+     * Attempts a reconnection
      */
     attemptReconnect() {
         this.reconnectAttempts++;
 
         if (typeof this.reconnectCallback === 'function') {
-            console.log(`Tentative de reconnexion ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+            console.log(`Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
             this.reconnectCallback(this.reconnectAttempts);
         }
     }
 
     /**
-     * Arrête le processus de reconnexion automatique
+     * Stops the automatic reconnection process
      */
     stopReconnection() {
         this.isReconnecting = false;
@@ -87,7 +87,7 @@ class ReconnectionManager {
     }
 
     /**
-     * Réinitialise les paramètres de reconnexion
+     * Resets reconnection parameters
      */
     reset() {
         this.stopReconnection();
@@ -96,5 +96,5 @@ class ReconnectionManager {
     }
 }
 
-// Exporter une instance unique
+// Export a single instance
 export const reconnectManager = new ReconnectionManager();

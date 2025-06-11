@@ -1,5 +1,5 @@
 /**
- * Module principal du client WebSocket STOMP
+ * Main WebSocket STOMP client module
  */
 
 import { authManager } from './auth.js';
@@ -69,31 +69,31 @@ export class STOMPWebSocketClient {
     connect() {
         const url = this.elements.wsUrl.value.trim();
         if (!url) {
-            this.showMessage('Veuillez entrer une URL WebSocket valide', 'error');
+            this.showMessage('Please enter a valid WebSocket URL', 'error');
             return;
         }
 
         try {
-            this.showMessage('🔄 Connexion STOMP en cours...', 'info');
-            this.addMessage('🔄 Tentative de connexion STOMP...', 'SYSTEM');
+            this.showMessage('🔄 STOMP connection in progress...', 'info');
+            this.addMessage('🔄 Attempting STOMP connection...', 'SYSTEM');
 
-            // Créer le client STOMP
+            // Create STOMP client
             const socket = new SockJS(url);
             this.stompClient = Stomp.over(socket);
 
-            // Configuration du client STOMP
-            this.stompClient.heartbeat.outgoing = 20000; // 20 secondes
-            this.stompClient.heartbeat.incoming = 20000; // 20 secondes
+            // STOMP client configuration
+            this.stompClient.heartbeat.outgoing = 20000; // 20 seconds
+            this.stompClient.heartbeat.incoming = 20000; // 20 seconds
 
-            // Réduire les logs de debug (optionnel)
+            // Reduce debug logs (optional)
             this.stompClient.debug = (str) => {
                 console.log('STOMP: ' + str);
             };
 
-            // Headers de connexion
+            // Connection headers
             let connectHeaders = {};
 
-            // Ajouter les informations d'authentification basiques
+            // Add basic authentication information
             if (this.elements.username.value.trim()) {
                 connectHeaders.login = this.elements.username.value.trim();
             }
@@ -101,37 +101,37 @@ export class STOMPWebSocketClient {
                 connectHeaders.passcode = this.elements.password.value.trim();
             }
 
-            // Ajouter le token JWT/OAuth2 si disponible
+            // Add JWT/OAuth2 token if available
             connectHeaders = authManager.applyAuthHeaders(connectHeaders);
 
-            // Connexion
+            // Connection
             this.stompClient.connect(
                 connectHeaders,
-                (frame) => this.onConnected(frame),    // Succès
-                (error) => this.onError(error)         // Erreur
+                (frame) => this.onConnected(frame),    // Success
+                (error) => this.onError(error)         // Error
             );
 
         } catch (error) {
-            this.showMessage(`❌ Erreur de connexion: ${error.message}`, 'error');
-            this.addMessage(`❌ Erreur: ${error.message}`, 'SYSTEM');
+            this.showMessage(`❌ Connection error: ${error.message}`, 'error');
+            this.addMessage(`❌ Error: ${error.message}`, 'SYSTEM');
         }
     }
 
     /**
-     * Tente de se reconnecter après une perte de connexion
+     * Attempts to reconnect after connection loss
      */
     reconnect() {
         if (this.reconnecting || this.isConnected) return;
 
         this.reconnecting = true;
-        this.addMessage('🔄 Tentative de reconnexion...', 'SYSTEM');
+        this.addMessage('🔄 Attempting to reconnect...', 'SYSTEM');
         this.connect();
     }
 
     disconnect() {
         if (this.stompClient && this.stompClient.connected) {
             this.stompClient.disconnect(() => {
-                this.addMessage('🔌 Déconnexion STOMP réussie', 'SYSTEM');
+                this.addMessage('🔌 STOMP disconnection successful', 'SYSTEM');
                 this.onClosed();
             });
         }
@@ -140,33 +140,33 @@ export class STOMPWebSocketClient {
     subscribe() {
         const topic = this.elements.topicPath.value.trim();
         if (!topic) {
-            this.showMessage('Veuillez entrer un topic valide', 'error');
+            this.showMessage('Please enter a valid topic', 'error');
             return;
         }
 
         if (this.subscribedTopics.has(topic)) {
-            this.showMessage('Déjà abonné à ce topic', 'error');
+            this.showMessage('Already subscribed to this topic', 'error');
             return;
         }
 
         if (this.stompClient && this.stompClient.connected) {
             try {
-                // Souscription avec STOMP
+                // STOMP subscription
                 const subscription = this.stompClient.subscribe(topic, (message) => {
                     this.onMessageReceived(topic, message);
                 });
 
-                // Stocker la souscription
+                // Store the subscription
                 this.subscribedTopics.set(topic, subscription);
                 this.addTopicTag(topic);
                 this.elements.topicPath.value = '';
-                this.addMessage(`✅ Abonné au topic: ${topic}`, 'SYSTEM');
+                this.addMessage(`✅ Subscribed to topic: ${topic}`, 'SYSTEM');
 
-                // Mettre à jour le sélecteur de topic pour le filtrage
+                // Update topic selector for filtering
                 this.updateTopicSelector();
 
             } catch (error) {
-                this.showMessage(`Erreur de souscription: ${error.message}`, 'error');
+                this.showMessage(`Subscription error: ${error.message}`, 'error');
             }
         }
     }
@@ -176,16 +176,16 @@ export class STOMPWebSocketClient {
         const message = this.elements.sendMessage.value.trim();
 
         if (!destination || !message) {
-            this.showMessage('Veuillez remplir la destination et le message', 'error');
+            this.showMessage('Please fill in both destination and message', 'error');
             return;
         }
 
         if (this.stompClient && this.stompClient.connected) {
             try {
-                // Envoi du message avec STOMP
+                // Send message with STOMP
                 this.stompClient.send(destination, {}, message);
 
-                // Ajouter à l'interface et à l'historique
+                // Add to interface and history
                 const timestamp = new Date().toISOString();
                 const messageObj = {
                     content: message,
@@ -196,7 +196,7 @@ export class STOMPWebSocketClient {
 
                 this.addMessage(message, 'SENT:' + destination, {}, false, null);
 
-                // Sauvegarder dans l'historique si activé
+                // Save to history if enabled
                 if (messageStorage.isStorageEnabled()) {
                     messageStorage.saveMessage(messageObj);
                 }
@@ -204,7 +204,7 @@ export class STOMPWebSocketClient {
                 this.elements.sendMessage.value = '';
 
             } catch (error) {
-                this.showMessage(`Erreur d'envoi: ${error.message}`, 'error');
+                this.showMessage(`Sending error: ${error.message}`, 'error');
             }
         }
     }
@@ -221,31 +221,31 @@ export class STOMPWebSocketClient {
         this.elements.sendMessage.disabled = false;
         this.elements.sendBtn.disabled = false;
 
-        this.showMessage('✅ Connexion STOMP établie avec succès!', 'success');
+        this.showMessage('✅ STOMP connection successfully established!', 'success');
         this.clearMessages();
-        this.addMessage('🔗 Connexion STOMP établie', 'SYSTEM');
+        this.addMessage('🔗 STOMP connection established', 'SYSTEM');
         this.addMessage(`📋 Session ID: ${frame.headers.session || 'N/A'}`, 'SYSTEM');
-        this.addMessage(`🖥️ Serveur: ${frame.headers.server || 'N/A'}`, 'SYSTEM');
+        this.addMessage(`🖥️ Server: ${frame.headers.server || 'N/A'}`, 'SYSTEM');
         this.addMessage(`💓 Heartbeat: ${this.stompClient.heartbeat.outgoing}ms`, 'SYSTEM');
 
-        // Arrêter le gestionnaire de reconnexion si actif
+        // Stop the reconnection manager if active
         reconnectManager.reset();
 
     }
 
     onError(error) {
         this.isConnected = false;
-        this.showMessage('❌ Erreur de connexion STOMP', 'error');
-        this.addMessage(`❌ Erreur STOMP: ${error}`, 'SYSTEM');
+        this.showMessage('❌ STOMP connection error', 'error');
+        this.addMessage(`❌ STOMP error: ${error}`, 'SYSTEM');
         this.resetConnectionState();
 
-        // Gérer la reconnexion automatique si activée
+        // Handle automatic reconnection if enabled
         if (document.getElementById('enableReconnect') && document.getElementById('enableReconnect').checked) {
             reconnectManager.startReconnection();
-            this.addMessage('🔄 Tentative de reconnexion automatique planifiée...', 'SYSTEM');
+            this.addMessage('🔄 Automatic reconnection attempt scheduled...', 'SYSTEM');
         }
 
-        // Mettre à jour l'interface client
+        // Update client interface
         this.updateClientUI();
         this.reconnecting = false;
     }
@@ -253,30 +253,30 @@ export class STOMPWebSocketClient {
     onClosed() {
         this.isConnected = false;
         this.resetConnectionState();
-        this.addMessage('🔌 Connexion STOMP fermée', 'SYSTEM');
+        this.addMessage('🔌 STOMP connection closed', 'SYSTEM');
         this.updateClientUI();
     }
 
-    // Méthode onMessageReceived améliorée
+    // Enhanced onMessageReceived method
     onMessageReceived(topic, message) {
         try {
             let content = message.body;
             let isJson = false;
             let jsonObject = null;
 
-            // Essayer de parser le JSON
+            // Try to parse JSON
             try {
                 jsonObject = JSON.parse(content);
                 isJson = true;
             } catch (e) {
-                // Ce n'est pas du JSON, garder le contenu original
+                // Not JSON, keep original content
                 isJson = false;
             }
 
-            // Ajouter à l'interface
+            // Add to the interface
             this.addMessage(content, topic, message.headers, isJson, jsonObject);
 
-            // Sauvegarder dans l'historique si activé
+            // Save to history if enabled
             if (messageStorage.isStorageEnabled()) {
                 const timestamp = new Date().toISOString();
                 messageStorage.saveMessage({
@@ -290,7 +290,7 @@ export class STOMPWebSocketClient {
             }
 
         } catch (error) {
-            this.addMessage(`Erreur de traitement: ${error.message}`, 'ERROR');
+            this.addMessage(`Processing error: ${error.message}`, 'ERROR');
         }
     }
 
@@ -304,7 +304,7 @@ export class STOMPWebSocketClient {
         this.elements.sendMessage.disabled = true;
         this.elements.sendBtn.disabled = true;
 
-        // Nettoyer les souscriptions
+        // Clean up subscriptions
         this.subscribedTopics.clear();
         this.clearTopicTags();
         this.updateTopicSelector();
@@ -336,14 +336,14 @@ export class STOMPWebSocketClient {
     }
 
     removeTopic(topic) {
-        // Désabonnement avec STOMP
+        // Unsubscribe with STOMP
         const subscription = this.subscribedTopics.get(topic);
         if (subscription) {
             subscription.unsubscribe();
             this.subscribedTopics.delete(topic);
         }
 
-        // Supprimer le tag visuel
+        // Remove visual tag
         const tags = this.elements.topicsList.querySelectorAll('.topic-tag');
         tags.forEach(tag => {
             if (tag.textContent.includes(topic)) {
@@ -351,7 +351,7 @@ export class STOMPWebSocketClient {
             }
         });
 
-        this.addMessage(`❌ Désabonné du topic: ${topic}`, 'SYSTEM');
+        this.addMessage(`❌ Unsubscribed from topic: ${topic}`, 'SYSTEM');
         this.updateTopicSelector();
     }
 
@@ -359,24 +359,24 @@ export class STOMPWebSocketClient {
         this.elements.topicsList.innerHTML = '';
     }
 
-    // Méthode addMessage améliorée
+    // Enhanced addMessage method
     addMessage(content, topic, headers = {}, isJson = false, jsonObject = null) {
         const timestamp = new Date().toLocaleTimeString();
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message-item';
 
-        // Ajouter des données pour le filtrage
+        // Add data for filtering
         messageDiv.setAttribute('data-topic', topic);
         messageDiv.setAttribute('data-content', content);
         messageDiv.setAttribute('data-timestamp', timestamp);
 
-        // Identifier si c'est un message d'historique
+        // Identify if it's a history message
         if (topic.startsWith('HISTORY:')) {
             messageDiv.classList.add('history');
             topic = topic.replace('HISTORY:', '');
         }
 
-        // Afficher les headers s'ils existent
+        // Display headers if they exist
         let headersInfo = '';
         if (Object.keys(headers).length > 0) {
             headersInfo = `
@@ -386,7 +386,7 @@ export class STOMPWebSocketClient {
                 </div>`;
         }
 
-        // Formater le contenu selon qu'il soit JSON ou non
+        // Format content based on whether it's JSON or not
         let formattedContent = '';
         if (isJson && jsonObject !== null) {
             formattedContent = `
@@ -395,7 +395,7 @@ export class STOMPWebSocketClient {
                         ${this.formatJsonToHtml(jsonObject)}
                     </div>
                     <details class="raw-json">
-                        <summary>Afficher le JSON brut</summary>
+                        <summary>Show raw JSON</summary>
                         <pre>${JSON.stringify(jsonObject, null, 2)}</pre>
                     </details>
                 </div>`;
@@ -403,12 +403,12 @@ export class STOMPWebSocketClient {
             formattedContent = `<div class="text-content">${this.escapeHtml(content)}</div>`;
         }
 
-        // Classe spéciale pour les messages envoyés
+        // Special class for sent messages
         const sentClass = topic.startsWith('SENT:') ? 'sent-message-log' : '';
 
-        // Badge pour l'historique
+        // Badge for history
         const historyBadge = messageDiv.classList.contains('history') ? 
-            '<span class="history-badge">Historique</span>' : '';
+            '<span class="history-badge">History</span>' : '';
 
         messageDiv.innerHTML = `
             <div class="message-header">
@@ -510,12 +510,12 @@ export class STOMPWebSocketClient {
     }
 
     /**
-     * Charge les messages historiques depuis le stockage local
+     * Load historical messages from local storage
      */
     loadHistoricalMessages() {
         const messages = messageStorage.getMessages();
         messages.forEach(msg => {
-            // Ne charger que les messages pour ce client
+            // Load only messages for this client
             if (msg.clientId === this.clientId) {
                 this.addMessage(
                     msg.content,
@@ -529,19 +529,19 @@ export class STOMPWebSocketClient {
     }
 
     /**
-     * Met à jour le sélecteur de topics pour le filtrage
+     * Update topic selector for filtering
      */
     updateTopicSelector() {
         const topicFilter = document.getElementById('topicFilter');
         if (!topicFilter) return;
 
-        // Sauvegarder la sélection actuelle
+        // Save current selection
         const currentValue = topicFilter.value;
 
-        // Réinitialiser
-        topicFilter.innerHTML = '<option value="">Tous les topics</option>';
+        // Reset
+        topicFilter.innerHTML = '<option value="">All topics</option>';
 
-        // Ajouter les topics du client actif
+        // Add topics from active client
         const topics = Array.from(this.subscribedTopics.keys());
         topics.forEach(topic => {
             const option = document.createElement('option');
@@ -550,15 +550,15 @@ export class STOMPWebSocketClient {
             topicFilter.appendChild(option);
         });
 
-        // Restaurer la sélection si possible
+        // Restore selection if possible
         if (currentValue && topics.includes(currentValue)) {
             topicFilter.value = currentValue;
         }
     }
 
     /**
-     * Filtre les messages affichés selon un terme de recherche
-     * @param {string} query - Terme de recherche
+     * Filter displayed messages based on a search term
+     * @param {string} query - Search term
      */
     filterMessages(query) {
         this.currentFilter = query.toLowerCase();
@@ -566,8 +566,8 @@ export class STOMPWebSocketClient {
     }
 
     /**
-     * Filtre les messages par topic
-     * @param {string} topic - Topic à filtrer
+     * Filter messages by topic
+     * @param {string} topic - Topic to filter
      */
     filterByTopic(topic) {
         this.currentTopicFilter = topic;
@@ -575,7 +575,7 @@ export class STOMPWebSocketClient {
     }
 
     /**
-     * Applique les filtres actifs aux messages
+     * Apply active filters to messages
      */
     applyFilters() {
         this.messageCache.forEach(item => {
@@ -593,30 +593,30 @@ export class STOMPWebSocketClient {
     }
 
     /**
-     * Met à jour l'interface utilisateur pour le mode multi-clients
+     * Update user interface for multi-client mode
      */
     updateClientUI() {
         const clientsList = document.getElementById('clientsList');
         if (!clientsList) return;
 
-        // Mettre à jour le statut de connexion dans la liste des clients
+        // Update connection status in client list
         const clientCard = clientsList.querySelector(`[data-client-id="${this.clientId}"]`);
         if (clientCard) {
             const statusElement = clientCard.querySelector('.client-status');
             if (statusElement) {
                 statusElement.className = `client-status ${this.isConnected ? 'connected' : 'disconnected'}`;
-                statusElement.textContent = this.isConnected ? 'Connecté' : 'Déconnecté';
+                statusElement.textContent = this.isConnected ? 'Connected' : 'Disconnected';
             }
         }
 
-        // Mettre à jour les infos du client actif
+        // Update active client info
         const activeClientInfo = document.getElementById('activeClientInfo');
         if (activeClientInfo) {
             const clientDetails = activeClientInfo.querySelector('.client-details');
             if (clientDetails) {
                 const statusValue = clientDetails.querySelector('.client-detail-value');
                 if (statusValue) {
-                    statusValue.innerHTML = this.isConnected ? '✅ Connecté' : '❌ Déconnecté';
+                    statusValue.innerHTML = this.isConnected ? '✅ Connected' : '❌ Disconnected';
                 }
             }
         }

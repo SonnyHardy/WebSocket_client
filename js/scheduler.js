@@ -1,5 +1,5 @@
 /**
- * Module de gestion des envois programmés de messages (simulateur)
+ * Scheduled message sending management module (simulator)
  */
 
 class MessageScheduler {
@@ -11,27 +11,27 @@ class MessageScheduler {
     }
 
     /**
-     * Définit le client STOMP à utiliser pour l'envoi
-     * @param {Object} stompClient - Instance du client STOMP
+     * Sets the STOMP client to use for sending
+     * @param {Object} stompClient - STOMP client instance
      */
     setClient(stompClient) {
         this.client = stompClient;
     }
 
     /**
-     * Planifie l'envoi régulier d'un message
-     * @param {Object} config - Configuration de l'envoi programmé
-     * @returns {number} ID de la tâche planifiée
+     * Schedule regular sending of a message
+     * @param {Object} config - Scheduled sending configuration
+     * @returns {number} ID of the scheduled task
      */
     scheduleMessage(config) {
         if (!config.destination || !config.message) {
-            throw new Error('La destination et le message sont requis');
+            throw new Error('Destination and message are required');
         }
 
         const taskId = this.nextTaskId++;
-        const intervalMs = (config.intervalSeconds || 5) * 1000; // Convertir en millisecondes
+        const intervalMs = (config.intervalSeconds || 5) * 1000; // Convert to milliseconds
 
-        // Sauvegarder la configuration de la tâche
+        // Save task configuration
         const task = {
             id: taskId,
             config: {
@@ -40,49 +40,49 @@ class MessageScheduler {
                 headers: config.headers || {},
                 intervalSeconds: config.intervalSeconds || 5,
                 variableData: config.variableData || false,
-                iterations: config.iterations || 0, // 0 = infini
+                iterations: config.iterations || 0, // 0 = infinite
                 currentIteration: 0
             },
             timerId: null
         };
 
-        // Fonction d'envoi du message
+        // Message sending function
         const sendScheduledMessage = () => {
             if (!this.client || !this.client.stompClient || !this.client.stompClient.connected) {
-                console.warn('Client STOMP non connecté, message programmé non envoyé');
+                console.warn('STOMP client not connected, scheduled message not sent');
                 return;
             }
 
-            // Incrémenter le compteur d'itérations
+            // Increment iteration counter
             task.config.currentIteration++;
 
-            // Préparer le message avec des données variables si nécessaire
+            // Prepare message with variable data if necessary
             let messageToSend = task.config.message;
 
-            // Ajouter des données variables si configuré
+            // Add variable data if configured
             if (task.config.variableData) {
                 try {
-                    // Si c'est du JSON, on modifie certaines valeurs
+                    // If it's JSON, modify certain values
                     const messageObj = JSON.parse(messageToSend);
-                    // Ajouter un timestamp
+                    // Add timestamp
                     messageObj.timestamp = new Date().toLocaleString();
-                    // Ajouter un numéro de séquence
+                    // Add sequence number
                     //messageObj.sequence = task.config.currentIteration;
-                    // Ajouter des valeurs aléatoires pour simuler des capteurs
+                    // Add random values to simulate sensors
                     //if (!messageObj.sensors) messageObj.sensors = {};
                     //messageObj.sensors.temperature = Math.round((15 + Math.random() * 10) * 10) / 10;
                     //messageObj.sensors.humidity = Math.round(Math.random() * 100);
                     messageToSend = JSON.stringify(messageObj);
                 } catch (e) {
-                    // Si ce n'est pas du JSON, on ajoute juste un timestamp
+                    // If it's not JSON, just add a timestamp
                     messageToSend += ` [${new Date().toLocaleTimeString()}] [seq:${task.config.currentIteration}]`;
                 }
             }
 
-            // Envoyer le message
+            // Send the message
             this.client.stompClient.send(task.config.destination, task.config.headers, messageToSend);
 
-            // Événement d'envoi réussi
+            // Successful send event
             const sendEvent = new CustomEvent('scheduledMessageSent', {
                 detail: {
                     taskId: task.id,
@@ -93,11 +93,11 @@ class MessageScheduler {
             });
             document.dispatchEvent(sendEvent);
 
-            // Vérifier si on a atteint le nombre maximum d'itérations
+            // Check if we've reached the maximum number of iterations
             if (task.config.iterations > 0 && task.config.currentIteration >= task.config.iterations) {
                 this.stopScheduledTask(taskId);
 
-                // Événement de fin de tâche
+                // Task completion event
                 const completedEvent = new CustomEvent('scheduledTaskCompleted', {
                     detail: { taskId: task.id }
                 });
@@ -105,11 +105,11 @@ class MessageScheduler {
             }
         };
 
-        // Démarrer l'envoi périodique
+        // Start periodic sending
         task.timerId = setInterval(sendScheduledMessage, intervalMs);
         this.scheduledTasks.set(taskId, task);
 
-        // Envoyer immédiatement le premier message
+        // Send the first message immediately
         if (config.sendImmediately) {
             sendScheduledMessage();
         }
@@ -118,9 +118,9 @@ class MessageScheduler {
     }
 
     /**
-     * Arrête une tâche programmée
-     * @param {number} taskId - ID de la tâche à arrêter
-     * @returns {boolean} Succès de l'opération
+     * Stops a scheduled task
+     * @param {number} taskId - ID of the task to stop
+     * @returns {boolean} Success of the operation
      */
     stopScheduledTask(taskId) {
         const task = this.scheduledTasks.get(taskId);
@@ -132,8 +132,8 @@ class MessageScheduler {
     }
 
     /**
-     * Récupère toutes les tâches programmées actives
-     * @returns {Array} Liste des tâches programmées
+     * Gets all active scheduled tasks
+     * @returns {Array} List of scheduled tasks
      */
     getActiveTasks() {
         const tasks = [];
@@ -147,7 +147,7 @@ class MessageScheduler {
     }
 
     /**
-     * Arrête toutes les tâches programmées
+     * Stops all scheduled tasks
      */
     stopAllTasks() {
         this.scheduledTasks.forEach((task, id) => {
@@ -157,13 +157,13 @@ class MessageScheduler {
     }
 
     /**
-     * Ajoute un template de message
-     * @param {Object} template - Template de message
-     * @returns {number} ID du template
+     * Adds a message template
+     * @param {Object} template - Message template
+     * @returns {number} Template ID
      */
     addTemplate(template) {
         if (!template.name || !template.destination || !template.message) {
-            throw new Error('Le nom, la destination et le message sont requis pour un template');
+            throw new Error('Name, destination, and message are required for a template');
         }
 
         const templateId = this.templates.length + 1;
@@ -176,13 +176,13 @@ class MessageScheduler {
     }
 
     /**
-     * Récupère tous les templates disponibles
-     * @returns {Array} Liste des templates
+     * Gets all available templates
+     * @returns {Array} List of templates
      */
     getTemplates() {
         return [...this.templates];
     }
 }
 
-// Exporter une instance unique
+// Export a single instance
 export const messageScheduler = new MessageScheduler();
