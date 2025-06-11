@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "STOMP WebSocket Client",
+  "description": "Web client for interacting with WebSocket servers using the STOMP protocol (Simple Text Oriented Messaging Protocol)",
+  "version": "1.0",
+  "author": "sonnydev265@gmail.com",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "STOMP WebSocket Client",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "js/background.js"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "permissions": [
+    "webRequest",
+    "storage",
+    "tabs",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["index.html", "css/*", "js/*", "js/static/sockjs.min.js", "js/static/stomp.min.js", "icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

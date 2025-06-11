@@ -35,6 +35,9 @@
                 <div class="info-text">
                     <small>ℹ️ For STOMP.js, the URL must be in the format <code>http://</code> or <code>https://</code> followed by the WebSocket endpoint path (e.g., <code>localhost:8080/ws</code>).</small>
                 </div>
+                <div class="info-text">
+                    <small>ℹ️ Don't forget to add <code>chrome-extension://mpcnccahlienegcbbaajgfkddbkndhpg</code> to your allowed CORS origins</small>
+                </div>
                 <div class="input-group">
                     <button class="btn btn-primary" id="connectBtn">Connect</button>
                     <button class="btn btn-danger" id="disconnectBtn" disabled>Disconnect</button>
@@ -149,9 +152,9 @@
     </div>
 
     <!-- SockJS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="js/static/sockjs.min.js"></script>
     <!-- STOMP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="js/static/stomp.min.js"></script>
 
     <!-- STOMP client modules -->
     <script type="module" src="js/main.js"></script>

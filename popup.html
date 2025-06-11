@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STOMP WebSocket Client</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            width: 300px;
+            padding: 15px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .popup-btn {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+            padding: 8px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .popup-btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="popup-header">
+        <h2>🚀 STOMP WebSocket Client</h2>
+        <p>Quickly connect to your WebSocket endpoints</p>
+    </div>
+
+    <a href="index.html" target="_blank" class="popup-btn">Open Client Interface</a>
+    <a href="options.html" target="_blank" class="popup-btn">Settings</a>
+
+    <div class="recent-connections">
+        <h3>Recent Connections</h3>
+        <div id="recentList">
+            <p style="color: #666; font-style: italic;">No recent connections</p>
+        </div>
+    </div>
+
+    <script src="js/popup.js"></script>
+</body>
+</html>
