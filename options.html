@@ -5,90 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STOMP WebSocket Client - Options</title>
     <link rel="stylesheet" href="css/styles.css">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .option-card {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 4px solid #4facfe;
-        }
-        .save-btn {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .save-btn:hover {
-            opacity: 0.9;
-        }
-    </style>
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/history.css">
+    <link rel="stylesheet" href="css/scheduler.css">
 </head>
 <body>
-    <h1>🔧 STOMP WebSocket Client Settings</h1>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 STOMP WebSocket Client Settings</h1>
+            <p>Configure your client preferences</p>
+            <div class="library-info">
+                📚 Settings will apply to all new connections
+            </div>
+        </div>
 
-    <div class="option-card">
-        <h2>Default Connection Settings</h2>
-        <div class="input-row">
-            <label for="defaultUrl">Default WebSocket URL:</label>
-            <input type="text" id="defaultUrl" placeholder="http://localhost:8080/ws">
-        </div>
-        <div class="input-row">
-            <label for="defaultUsername">Default Username:</label>
-            <input type="text" id="defaultUsername" placeholder="Username (optional)">
-        </div>
-        <div class="input-row">
-            <label for="defaultPassword">Default Password:</label>
-            <input type="password" id="defaultPassword" placeholder="Password (optional)">
+        <div class="content">
+            <!-- Connection Settings Section -->
+            <div class="section">
+                <h2>🔌 Default Connection Settings</h2>
+                <div class="input-row">
+                    <input type="text" id="defaultUrl" placeholder="http://localhost:8080/ws">
+                    <input type="text" id="defaultUsername" placeholder="Username (optional)">
+                    <input type="password" id="defaultPassword" placeholder="Password (optional)">
+                </div>
+                <div class="info-text">
+                    <small>ℹ️ These values will be pre-filled when you open the client interface</small>
+                </div>
+            </div>
+
+            <!-- History Settings Section -->
+            <div class="section">
+                <h2>📊 History Settings</h2>
+                <div class="input-row">
+                    <label class="history-toggle">
+                        <input type="checkbox" id="enableHistoryByDefault" checked>
+                        Enable message history by default
+                    </label>
+                </div>
+                <div class="input-row">
+                    <label for="historyLimit">Maximum messages to store:</label>
+                    <input type="number" id="historyLimit" value="100" min="10" max="1000">
+                </div>
+                <div class="input-group">
+                    <button id="clearHistoryBtn" class="btn btn-danger">Clear All History</button>
+                </div>
+                <div class="info-text">
+                    <small>ℹ️ Message history is stored locally in your browser</small>
+                </div>
+            </div>
+
+            <!-- Reconnection Settings Section -->
+            <div class="section auth-section">
+                <h2>🔄 Reconnection Settings</h2>
+                <div class="reconnect-options">
+                    <div class="input-row">
+                        <label>
+                            <input type="checkbox" id="enableReconnectByDefault" checked>
+                            Enable automatic reconnection by default
+                        </label>
+                    </div>
+                    <div class="input-row">
+                        <input type="number" id="defaultMaxRetries" placeholder="Max retries" value="10" min="1" max="100">
+                        <input type="number" id="defaultInitialDelay" placeholder="Initial delay (ms)" value="1000" min="100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="input-group">
+                <button id="saveBtn" class="btn btn-primary">Save Settings</button>
+            </div>
+            <div id="saveMessage"></div>
+
+            <!-- Back to Client Link -->
+            <div style="text-align: center; margin-top: 20px">
+                <a href="index.html" style="color: #4facfe; text-decoration: underline; font-size: 1.3em">Return to STOMP WebSocket Client Interface</a>            </div>
         </div>
     </div>
-
-    <div class="option-card">
-        <h2>History Settings</h2>
-        <div class="input-row">
-            <label>
-                <input type="checkbox" id="enableHistoryByDefault" checked>
-                Enable message history by default
-            </label>
-        </div>
-        <div class="input-row">
-            <label for="historyLimit">Maximum messages to store:</label>
-            <input type="number" id="historyLimit" value="100" min="10" max="1000">
-        </div>
-        <div class="input-row">
-            <button id="clearHistoryBtn" class="btn btn-danger">Clear All History</button>
-        </div>
-    </div>
-
-    <div class="option-card">
-        <h2>Advanced Settings</h2>
-        <div class="input-row">
-            <label>
-                <input type="checkbox" id="enableReconnectByDefault" checked>
-                Enable automatic reconnection by default
-            </label>
-        </div>
-        <div class="input-row">
-            <label for="defaultMaxRetries">Default max retries:</label>
-            <input type="number" id="defaultMaxRetries" value="10" min="1" max="100">
-        </div>
-        <div class="input-row">
-            <label for="defaultInitialDelay">Default initial delay (ms):</label>
-            <input type="number" id="defaultInitialDelay" value="1000" min="100">
-        </div>
-    </div>
-
-    <button id="saveBtn" class="save-btn">Save Settings</button>
-    <div id="saveMessage"></div>
 
     <script src="js/options.js"></script>
 </body>
