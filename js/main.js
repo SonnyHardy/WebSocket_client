@@ -31,6 +31,15 @@ messageScheduler.setClient(stompClient);
 
 // Initialize user interface
 document.addEventListener('DOMContentLoaded', () => {
+    // Get the extension ID from the URL
+    const extensionIdElement = document.getElementById('extensionId');
+    if (extensionIdElement) {
+        const url = window.location.href;
+        const extensionId = new URL(url).hostname;
+        console.log('🌐 Extension-id:', extensionId);
+        extensionIdElement.textContent = extensionId;
+    }
+
     // JWT/OAuth2 authentication interface
     const authElements = {
         authToken: document.getElementById('authToken'),
